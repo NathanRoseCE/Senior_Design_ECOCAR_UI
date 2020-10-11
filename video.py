@@ -1,9 +1,13 @@
 import vlc
 from time import sleep
 
-vidPlayer = Instance.media_player_new()
-vidMedia = Instance.media_new('testvid.fileextention')
-vidPlayer.set_media(vidMedia)
-vidplayer.play()
+vidPlayer = vlc.MediaPlayer()
+vidPlayer.set_fullscreen(True)
 
-sleep(10)
+video = vlc.Media("name.ext")
+vidPlayer.set_media(video)
+vidPlayer.play()
+sleep(0.1)
+
+while (vidPlayer.is_playing()) == 1:
+	sleep(0.3)
