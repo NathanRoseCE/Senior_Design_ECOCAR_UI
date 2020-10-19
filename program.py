@@ -5,7 +5,7 @@ from Tkinter import *
 from threading import Thread
 
 def mainExecution():
-
+	pass
 
 def exitFunc():
     root.destroy()
