@@ -15,19 +15,16 @@ class BlinkerInfo(Enum):
     BLINKER_INFO_BOTH = 4  
   #end BlinkerInfo
 class Obstacle:
-	def __init__(   self, oid=0, x=0.0, y=0.0, dx=0.0, dy=0.0, sizeX=0.0, sizeY = 0.0, 
-                    blinkerInfo=BLINKER_INFO_UNAVAILABLE, obstacleType=ObstacleType.UNKNOWN ):
+	def __init__(   self, oid=0, x=0.0, y=0.0, dx=0.0, dy=0.0, sizeX=0.0, sizeY=0.0, 
+                    blinkerInfo=BlinkerInfo.BLINKER_INFO_UNAVAILABLE, obstacleType=ObstacleType.UNKNOWN ):
 		self.oid = oid
 		self.x = x
 		self.y = y
-		
 		self.dx = dx
 		self.dy = dy
+		self.sizeY=sizeY
 		self.sizeX=sizeX
-        self.sizeY=sizeY
-        
-        self.blinkerInfo=blinkerInfo
-        
+		self.blinkerInfo=blinkerInfo
 		self.obstacleType = obstacleType
 	#end __init__ non-default
 #end Obstacle
@@ -42,11 +39,11 @@ class LaneType(Enum):
 	LANE_TYPE_INVALID = 6
 #end LaneType
 class Lane:
-	def __init__(	self, laneType=LaneType.LANE_TYPE_NONE, curavure_offset = curvature_offset
+	def __init__(	self, laneType=LaneType.LANE_TYPE_NONE, curvature_offset = 0.0,
 					position_parameter=0.0, curvature_parameter=0.0):
 		self.laneType = lane_type
 		self.position_parameter = position_parameter
- 		self.curvature_parameter = curvature_parameter
+		self.curvature_parameter = curvature_parameter
 		self.curavure_offset = curvature_offset
 	#end __init__
 #end Lane
