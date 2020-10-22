@@ -1,8 +1,6 @@
 # Get the tools for graphics
 from tkinter import *
 
-#testing
-
 # Graphics Setup
 baseValue    = 100
 windowWidth  = baseValue*3
