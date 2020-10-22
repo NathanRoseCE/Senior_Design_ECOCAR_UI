@@ -5,4 +5,3 @@ import graphics
 #import video
 
 graphics
-
