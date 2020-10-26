@@ -39,12 +39,12 @@ class LaneType(Enum):
 	LANE_TYPE_INVALID = 6
 #end LaneType
 class Lane:
-	def __init__(	self, laneType=LaneType.LANE_TYPE_NONE, curvature_offset = 0.0,
+	def __init__(	self, lane_type=LaneType.LANE_TYPE_NONE, curvature_offset = 0.0,
 					position_parameter=0.0, curvature_parameter=0.0):
 		self.laneType = lane_type
 		self.position_parameter = position_parameter
 		self.curvature_parameter = curvature_parameter
-		self.curavure_offset = curvature_offset
+		self.curvature_offset = curvature_offset
 	#end __init__
 #end Lane
 class _Singleton(type):
