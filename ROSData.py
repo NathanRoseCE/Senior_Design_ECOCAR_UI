@@ -15,7 +15,7 @@ class BlinkerInfo(Enum):
     BLINKER_INFO_BOTH = 4  
   #end BlinkerInfo
 class Obstacle:
-	def __init__(   self, oid=0, x=0.0, y=0.0, dx=0.0, dy=0.0, sizeX=0.0, sizeY=0.0, 
+	def __init__(   self, oid=0, x=0.0, y=0.0, dx=0.0, dy=0.0, sizeX=0.0, sizeY=0.0, lane=0,
                     blinkerInfo=BlinkerInfo.BLINKER_INFO_UNAVAILABLE, obstacleType=ObstacleType.UNKNOWN ):
 		self.oid = oid
 		self.x = x
@@ -26,6 +26,7 @@ class Obstacle:
 		self.sizeX=sizeX
 		self.blinkerInfo=blinkerInfo
 		self.obstacleType = obstacleType
+		self.lane=lane
 	#end __init__ non-default
 #end Obstacle
 
