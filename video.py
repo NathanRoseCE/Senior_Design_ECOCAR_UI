@@ -1,6 +1,7 @@
 import vlc
 from time import sleep
-
+import threading
+from threading import Thread
 
 
 
@@ -27,6 +28,13 @@ class VideoPlayer:
 
 		while (player.is_playing()) == 1:
 			sleep(0.3)
+			
+			
+			
+	def videoThread(self):
+		print("Start Thread")
+		Thread.start(self.videoPlayerPlay)
+		print("HEYO")
 
 
 
