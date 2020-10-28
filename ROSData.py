@@ -15,18 +15,22 @@ class BlinkerInfo(Enum):
     BLINKER_INFO_BOTH = 4  
   #end BlinkerInfo
 class Obstacle:
-	def __init__(   self, oid=0, x=0.0, y=0.0, dx=0.0, dy=0.0, sizeX=0.0, sizeY=0.0, lane=0,
-                    blinkerInfo=BlinkerInfo.BLINKER_INFO_UNAVAILABLE, obstacleType=ObstacleType.UNKNOWN ):
+	def __init__(   self, oid=0, x=0.0, y=0.0, dx=0.0, dy=0.0, sizeX=0.0, sizeY = 0.0, 
+                    blinkerInfo=BLINKER_INFO_UNAVAILABLE, obstacleType=ObstacleType.UNKNOWN,
+                    lanePosition = LanePosition.UNKNOWN):
 		self.oid = oid
-		self.x = x
-		self.y = y
-		self.dx = dx
-		self.dy = dy
-		self.sizeY=sizeY
-		self.sizeX=sizeX
-		self.blinkerInfo=blinkerInfo
+		self.x = float(x)
+		self.y = float(y)
+		
+		self.dx = float(dx)
+		self.dy = float(dy)
+		self.sizeX=float(sizeX)
+        self.sizeY=float(sizeY)
+        
+        self.blinkerInfo=blinkerInfo
+        
 		self.obstacleType = obstacleType
-		self.lane=lane
+        self.lanePosition = lanePosition
 	#end __init__ non-default
 #end Obstacle
 
@@ -39,13 +43,21 @@ class LaneType(Enum):
 	LANE_TYPE_BOTTS_DOTS = 5
 	LANE_TYPE_INVALID = 6
 #end LaneType
+
+class LanePosition(Enum):
+    UNKNOWN = 0
+    LEFT = 1
+    CENTER = 2
+    RIGHT = 2
+#end LanePosition
+    
 class Lane:
-	def __init__(	self, lane_type=LaneType.LANE_TYPE_NONE, curvature_offset = 0.0,
-					position_parameter=0.0, curvature_parameter=0.0):
-		self.laneType = lane_type
-		self.position_parameter = position_parameter
-		self.curvature_parameter = curvature_parameter
-		self.curvature_offset = curvature_offset
+	def __init__(	self, laneTypeRight=LaneType.LANE_TYPE_NONE, laneTypeLeft=LaneType.LANE_TYPE_NONE, 
+                    LanePosition = LanePosition.UNKOWN, laneWidth = 0.0):
+		self.laneTypeRight = laneTypeRight
+        self.laneTypeLeft = laneTypeLeft
+		self.lanePosition = lanePosition
+        self.laneWidth = laneWidth
 	#end __init__
 #end Lane
 class _Singleton(type):
@@ -62,7 +74,7 @@ class ROSData(object):
 	__metaclass__ = _Singleton
 	def __init__(self):
 		self.obstacles = {} 	#key is the object id, object is an Obstacle instance
-		self.lanes = [] 		#List of all detected lanes
+		self.lanes = {}         #key is LanePosition, object is Lane instance
 		self.ACCSpeed = 0.0		#Current Speed ACC is set to
 	#end __init__
 #end ROSData

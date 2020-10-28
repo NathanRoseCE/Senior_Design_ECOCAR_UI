@@ -1,7 +1,8 @@
 import os
 import threading
 import tkMessageBox
-from tkinter import *
+import video
+from Tkinter import *
 from threading import Thread
 
 def mainExecution():
@@ -10,6 +11,7 @@ def mainExecution():
 def exitFunc():
     root.destroy()
 
+vp = video.VideoPlayer()
 
 root = Tk()
 w, h = root.winfo_screenwidth(), root.winfo_screenheight()
@@ -19,6 +21,10 @@ root.configure(background='black', cursor="none")
 
 exitButton = Button(root, text="Exit", command=exitFunc, fg='white', bg='black')
 exitButton.place(x=25,y=380)
+
+yeetButton = Button(root, text="hecc", command=vp.videoPlayerPlay, fg='white', bg='black')
+yeetButton.place(x=100,y=380)
+
 
 
 execute = Thread( target=mainExecution)

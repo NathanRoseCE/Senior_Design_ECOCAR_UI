@@ -1,9 +1,37 @@
-import ROSData
+from ROSData import *
+import time
 
-obstacle = ROSData.Obstacle(25, 2, 4)
-ROSData1 = ROSData.ROSData()
-ROSData1.obstacles[25] = obstacle
-print str(ROSData1.obstacles[25].x)
-singletonTest = ROSData.ROSData()
 
-print str(singletonTest.obstacles[25].x)
+class SimulateData:
+    def __init__(self):
+        self.data = ROSData()
+        self.setupLanes()
+    #end __init__
+    
+    def runCarPassing(self):
+        obstacle = Obstacle(0, 0, -10, 0, 0, 5.0, 7.0, BlinkerInfo.BLINKER_INFO_OFF, ObstacleType.CAR)
+        ROSData.obstacles[0] = obstacle
+        for i in range(200):
+            obstacle.y += 0.1
+            time.sleep(0.1)
+        #end for
+    #end CarPassing  
+    
+    def setupLanes(self):
+        leftLane = Lane(LaneType.LANE_TYPE_SOLID, LaneType.LANE_TYPE_SOLID, anePosition.LEFT, 10)
+        centerLane = Lane(LaneType.LANE_TYPE_SOLID, LaneType.LANE_TYPE_SOLID, LanePosition.CENTER, 10)
+        rightLane = Lane(LaneType.LANE_TYPE_SOLID, LaneType.LANE_TYPE_SOLID, LanePosition.RIGHT, 10)
+        ROSData.lanes[LanePosition.LEFT] = leftLane
+        ROSData.lanes[LanePosition.CENTER] = centerLane
+        ROSData.lanes[LanePosition.RIGHT] = rightLane
+    #end setupLanes
+        
+    def runCarChangeLane(self):
+        obstacle = Obstacle(0, 0, 10, 0, 0, 5.0, 7.0, BlinkerInfo.BLINKER_INFO_OFF, ObstacleType.CAR)
+        ROSData.obstacles[0] = obstacle
+        for i in range(200):
+            obstacle.y += 0.1
+            time.sleep(0.1)
+        #end for
+    #end runCarChangeLane
+#end SimulateData
