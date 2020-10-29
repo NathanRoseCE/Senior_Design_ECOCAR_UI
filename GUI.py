@@ -27,43 +27,81 @@ class Obstacle_GUI:
 			self.photoImage = ImageTk.PhotoImage(self.image.resize((int(xPixels), int(yPixels)))) 
 			self.label = Label(self.master, image=self.photoImage) 
 			self.label.place( relx = x, rely = y, anchor='center')
-		pass
 	#end prep
-	def hide():
+	def hide(self):
 		self.hidden = True
 		self.label.destroy()
 	#end hide
 	
-	def show():
+	def show(self):
 		self.hidden = False
 	#end show
 	
-def Lane_GUI:
-	def __init__(self, master, lanePosition):
+	def __del__(self):
+		self.hide() #Hide, then DIE
+	#end __del__
+	
+class Lane_GUI:
+	def __init__(self, master, lanePosition, ros):
+		self.data = ros
 		self.lanePosition = lanePosition
-		self.image = Image.open('./Car1.gif')
-		self.hidden=False
+		self.lastLoadLeft = None
+		lastLoadRight = None
+		self.imageLeft = None
+		self.imageRight = None
+		self.hidden= False
 		self.master= master
-		self.label = Label(self.master)
+		self.labelLeft = Label(self.master)
+		self.labelRight= Label(self.master)
+		self.loadImage()
 	#end  __init__
 	
-	def update(self, x, y, xPixels, yPixels):
-		#ensure proper image is loaded(rn its only cars)
+	def loadImage(self):
+		if self.lastLoadLeft != self.data.lanes[self.lanePosition].laneTypeRight:
+			if self.data.lanes[self.lanePosition].laneTypeRight == LaneType.LANE_TYPE_DASHED:
+				self.imageRight = Image.open('./dashedWhiteLine.png')
+			elif self.data.lanes[self.lanePosition].laneTypeRight == LaneType.LANE_TYPE_SOLID:
+				self.imageRight = Image.open('./solidWhiteLine.png')
+			else: 
+				self.imageRight = Image.open('./dashedYellowLine.png')
+			self.lastLoadRight = self.data.lanes[self.lanePosition].laneTypeRight
+			
+		if self.lastLoadLeft != self.data.lanes[self.lanePosition].laneTypeLeft:
+			if self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_DASHED:
+				self.imageLeft = Image.open('./dashedWhiteLine.png')
+			elif self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_SOLID:
+				self.imageLeft = Image.open('./solidWhiteLine.png')
+			else:
+				self.imageLeft = Image.open('./dashedYellowLine.png')
+			self.lastLoadLeft= self.data.lanes[self.lanePosition].laneTypeLeft
+			
+	def update(self, xl, yl, xr, yr,  xPixels, yPixels):
+		#ensure proper image is loaded(rn its only dashed yellow)
 		if not self.hidden:
-			self.label.destroy()
-			self.photoImage = ImageTk.PhotoImage(self.image.resize((int(xPixels), int(yPixels)))) 
-			self.label = Label(self.master, image=self.photoImage) 
-			self.label.place( relx = x, rely = y, anchor='center')
-		pass
+			self.loadImage()
+			self.labelLeft.destroy()
+			self.photoImageLeft = ImageTk.PhotoImage(self.imageLeft.resize((int(xPixels), int(yPixels)))) 
+			self.labelLeft = Label(self.master, image=self.photoImageLeft) 
+			self.labelLeft.place( relx = xl, rely = yl, anchor='center')
+			
+			self.labelRight.destroy()
+			self.photoImageRight = ImageTk.PhotoImage(self.imageRight.resize((int(xPixels), int(yPixels)))) 
+			self.labelRight = Label(self.master, image=self.photoImageRight) 
+			self.labelRight.place( relx = xr, rely = yr, anchor='center')
 	#end prep
-	def hide():
+	def hide(self):
 		self.hidden = True
-		self.label.destroy()
+		self.labelRight.destroy()
+		self.labelLeft.destroy()
 	#end hide
 	
-	def show():
+	def show(self):
 		self.hidden = False
 	#end show
+	
+	def __del__(self):
+		self.hide() #Hide, then DIE
+	#end __del__
 class GUI:
 
 	def hide(self):
@@ -83,53 +121,30 @@ class GUI:
 		self.data = ROSData()
 		self.hidden = False
 		self.obstacleGUIs = {}
+		self.laneGUIs = {}
 		
 		#set up canvas
 		self.master=master
-		self.canvas=Canvas(master)
-		self.canvas.pack()
+		#self.canvas=Canvas(master)
+		#self.canvas.pack()
     	#display ecoCar
 		self.ECOCarImage = Image.open('./Car2.gif')
 		self.EcoCarLabel = Label(self.master) 
 		self.updateECOCarImage()
-    	
-    	#OLD
-		baseValue    = 1000
-		windowWidth  = baseValue*6
-		windowHeight  = baseValue*4
-		carWidth   = windowWidth*(1/6)
-		carHeight  = windowHeight*(1/4)
-		redCarXStart  = 260
-		redCarYStart  = 125
-		redCarXEnd    = redCarXStart+carWidth
-		redCarYEnd    = redCarYStart+carHeight
        
-       
-        
-        #set up cars
-#		self.photo = PhotoImage(file = './cars1.gif')
-#		self.img1=self.canvas.create_image(redCarXStart,redCarYStart,image=self.photo)
-#		blackCar = PhotoImage(file = './Car2.gif')
-#		self.canvas.create_image(redCarXStart, redCarYStart-carHeight*2,image=blackCar)
-#		infoBorderYStart = windowHeight*(1/10)
-#		infoBorder = self.canvas.create_rectangle(0, 0, windowWidth, infoBorderYStart, fill="green")
-#		solidYellowLineLeftXOffest = redCarXStart-carWidth*(1/2)
-#		solidYellowLineLeft = self.canvas.create_line(solidYellowLineLeftXOffest, infoBorderYStart, solidYellowLineLeftXOffest, windowHeight, fill="black")
-#		solidYellowLineRightXOffest = redCarXStart+carWidth*(3/2)
-#		solidYellowLineRight = self.canvas.create_line(solidYellowLineRightXOffest, infoBorderYStart, solidYellowLineRightXOffest, windowHeight, fill="black")
-#		speed          = self.canvas.create_text(windowWidth*(1/2), windowHeight*(1/20), text="Speed (MPH):\n"+"242")
-#		redCarDistance = self.canvas.create_text(redCarXStart+carWidth*(1/2), redCarYStart-carHeight*(1/2), text="Distance (M):\n"+"2")
 	#end __init__
 	def update(self):
 		if not self.hidden:
 			self.updateECOCarImage()
 			self.updateObstacles()
+			self.updateLanes()
 		#end of
 	#end update
 	
 	def updateObstacles(self):
 		currentlyTracked = self.obstacleGUIs.keys()
-		for obstacle in self.data.obstacles:
+		obstacleCpy = self.data.obstacles.copy()
+		for obstacle in obstacleCpy:
 			if obstacle in currentlyTracked:
 				currentlyTracked.remove(obstacle)
 			else:
@@ -144,6 +159,28 @@ class GUI:
 		#end for
 		for dissapeared in currentlyTracked:
 			del self.obstacleGUIs[dissapeared]
+		#end for
+	#end updateObstacles
+	
+	def updateLanes(self):
+		trackedLanes = self.laneGUIs.keys()
+		laneCpy = self.data.lanes.copy()
+		for lane in laneCpy:
+			if lane in trackedLanes:
+				trackedLanes.remove(lane)
+			else:
+				self.laneGUIs[lane] = Lane_GUI(self.master, lane, self.data)
+			#end if
+			lne = self.data.lanes[lane]
+			(xl, yl) = self.getGUIPoint( (-lne.laneWidth/2, 0), lane) 
+			(xr, yr) = self.getGUIPoint( (lne.laneWidth/2, 0), lane) 
+			(xRatio, yRatio) = self.relativeToGUIScale()
+			xPixels = int(0.1 * xRatio)
+			yPixels = int(self.showYDistance*2 * yRatio)
+			self.laneGUIs[lane].update(xl, yl, xr, yr, xPixels, yPixels)
+		#end for
+		for dissapeared in trackedLanes:
+			del self.laneGUIs[dissapeared]
 		#end for
 	#end updateObstacles
 	
@@ -207,8 +244,8 @@ class GUI:
 	#end translateLaneToRelative
 	
 	def relativeToGUIScale(self):
-		w, h = self.master.winfo_screenwidth(), self.master.winfo_screenheight()
-		
+		self.master.update()
+		w, h = self.master.winfo_height(), self.master.winfo_height()
 		leftWidth = self.data.lanes[LanePosition.LEFT].laneWidth
 		centerWidth = self.data.lanes[LanePosition.CENTER].laneWidth
 		rightWidth = self.data.lanes[LanePosition.RIGHT].laneWidth
@@ -242,16 +279,18 @@ def updateLoop(GUI):
 if __name__ == '__main__':
 	root = Tk()
 	w, h = root.winfo_screenwidth(), root.winfo_screenheight()
+	frame = Frame(root, bg="black", height=h*1, width=w*0.5)
+	frame.pack(  )
 	root.geometry("%dx%d+0+0" % (w, h))
 	simulator = SimulateData()
-	gui = GUI(root, 0, 1.0, 1.0, 0)
+	gui = GUI(frame, 0.0, 1.0, 1.0, 0.0)
 	#root.bind("<Left>", left)
 	#root.bind("<Right>", right)
 	#root.bind("<Up>", up)
 	#root.bind("<Down>", down)
-	#test = Thread( target=simulator.runCarPassing)
-	#test.setDaemon(True)
-	#test.start()
+	test = Thread( target=simulator.runCarPassing)
+	test.setDaemon(True)
+	test.start()
 	test2 = Thread( target=simulator.runCarChangeLane)
 	test2.setDaemon(True)
 	test2.start()

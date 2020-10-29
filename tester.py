@@ -11,7 +11,7 @@ class SimulateData:
     def runCarPassing(self):
         obstacle = Obstacle(0, 0, -10, 0, 0, 1.0, 2.0, BlinkerInfo.BLINKER_INFO_OFF, ObstacleType.CAR, lanePosition = LanePosition.LEFT)
         self.data.obstacles[0] = obstacle
-        for i in range(200):
+        while obstacle.y < 15:
             obstacle.y += 0.1
             time.sleep(0.1)
         #end for
@@ -19,9 +19,9 @@ class SimulateData:
     #end CarPassing  
     
     def setupLanes(self):
-        leftLane = Lane(LaneType.LANE_TYPE_SOLID, LaneType.LANE_TYPE_SOLID, LanePosition.LEFT, 3)
-        centerLane = Lane(LaneType.LANE_TYPE_SOLID, LaneType.LANE_TYPE_SOLID, LanePosition.CENTER, 3)
-        rightLane = Lane(LaneType.LANE_TYPE_SOLID, LaneType.LANE_TYPE_SOLID, LanePosition.RIGHT, 3)
+        leftLane = Lane(LaneType.LANE_TYPE_DASHED, LaneType.LANE_TYPE_SOLID, LanePosition.LEFT, 3)
+        centerLane = Lane(LaneType.LANE_TYPE_DASHED, LaneType.LANE_TYPE_DASHED, LanePosition.CENTER, 3)
+        rightLane = Lane(LaneType.LANE_TYPE_SOLID, LaneType.LANE_TYPE_DASHED, LanePosition.RIGHT, 3)
         self.data.lanes[LanePosition.LEFT] = leftLane
         self.data.lanes[LanePosition.CENTER] = centerLane
         self.data.lanes[LanePosition.RIGHT] = rightLane
@@ -43,7 +43,7 @@ class SimulateData:
 			obstacle.y +=0.05
 			time.sleep(0.1)
         #end for
-        for i in range(140):
+        while obstacle.y < 15:
 			obstacle.y +=0.05
 			time.sleep(0.1)
         #end for
