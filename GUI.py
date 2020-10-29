@@ -1,5 +1,6 @@
 
 import threading
+import vlc
 import time
 import sys
 from Tkinter import*
@@ -269,6 +270,18 @@ def mainTest():
 	test.hide()
 	time.sleep(2)
 	test.show()
+
+def videoPlay():
+	vidPlayer = vlc.MediaPlayer()
+	vidPlayer.set_fullscreen(True)
+	video = vlc.Media("IMG_1114.mp4")
+	vidPlayer.set_media(video)
+	vidPlayer.play()
+	time.sleep(0.1)
+
+	while(vidPlayer.is_playing()) == 1:
+		time.sleep(0.3)
+	vidPlayer.stop()
 	
 def updateLoop(GUI):
 	while True:
@@ -284,6 +297,8 @@ if __name__ == '__main__':
 	root.geometry("%dx%d+0+0" % (w, h))
 	simulator = SimulateData()
 	gui = GUI(frame, 0.0, 1.0, 1.0, 0.0)
+	vidButton = Button(root, text="video", command=videoPlay)
+	vidButton.place(x=10,y=10)
 	#root.bind("<Left>", left)
 	#root.bind("<Right>", right)
 	#root.bind("<Up>", up)
