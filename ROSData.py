@@ -14,9 +14,15 @@ class BlinkerInfo(Enum):
     BLINKER_INFO_RIGHT = 3
     BLINKER_INFO_BOTH = 4  
   #end BlinkerInfo
+class LanePosition(Enum):
+    UNKNOWN = 0
+    LEFT = 1
+    CENTER = 2
+    RIGHT = 3
+#end LanePosition
 class Obstacle:
 	def __init__(   self, oid=0, x=0.0, y=0.0, dx=0.0, dy=0.0, sizeX=0.0, sizeY = 0.0, 
-                    blinkerInfo=BLINKER_INFO_UNAVAILABLE, obstacleType=ObstacleType.UNKNOWN,
+                    blinkerInfo=BlinkerInfo.BLINKER_INFO_UNAVAILABLE, obstacleType=ObstacleType.UNKNOWN,
                     lanePosition = LanePosition.UNKNOWN):
 		self.oid = oid
 		self.x = float(x)
@@ -25,12 +31,12 @@ class Obstacle:
 		self.dx = float(dx)
 		self.dy = float(dy)
 		self.sizeX=float(sizeX)
-        self.sizeY=float(sizeY)
+		self.sizeY=float(sizeY)
         
-        self.blinkerInfo=blinkerInfo
+		self.blinkerInfo=blinkerInfo
         
 		self.obstacleType = obstacleType
-        self.lanePosition = lanePosition
+		self.lanePosition = lanePosition
 	#end __init__ non-default
 #end Obstacle
 
@@ -44,20 +50,15 @@ class LaneType(Enum):
 	LANE_TYPE_INVALID = 6
 #end LaneType
 
-class LanePosition(Enum):
-    UNKNOWN = 0
-    LEFT = 1
-    CENTER = 2
-    RIGHT = 2
-#end LanePosition
+
     
 class Lane:
 	def __init__(	self, laneTypeRight=LaneType.LANE_TYPE_NONE, laneTypeLeft=LaneType.LANE_TYPE_NONE, 
-                    LanePosition = LanePosition.UNKOWN, laneWidth = 0.0):
+                    lanePosition = LanePosition.UNKNOWN, laneWidth = 0.0):
 		self.laneTypeRight = laneTypeRight
-        self.laneTypeLeft = laneTypeLeft
+		self.laneTypeLeft = laneTypeLeft
 		self.lanePosition = lanePosition
-        self.laneWidth = laneWidth
+		self.laneWidth = float(laneWidth)
 	#end __init__
 #end Lane
 class _Singleton(type):
