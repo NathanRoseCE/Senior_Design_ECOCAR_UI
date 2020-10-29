@@ -1,4 +1,6 @@
-
+################
+# YOU NEED TO RUN 'pip2 install python-vlc' TO RUN NOW
+################
 import threading
 import vlc
 import time
