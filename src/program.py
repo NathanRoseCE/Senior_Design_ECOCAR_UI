@@ -2,7 +2,7 @@ import os
 import threading
 import tkMessageBox
 import video
-from Tkinter import *
+from tkinter import *
 from threading import Thread
 
 def mainExecution():
