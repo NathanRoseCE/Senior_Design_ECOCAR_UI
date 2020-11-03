@@ -77,5 +77,6 @@ class ROSData(object):
 		self.obstacles = {} 	#key is the object id, object is an Obstacle instance
 		self.lanes = {}         #key is LanePosition, object is Lane instance
 		self.ACCSpeed = 0.0		#Current Speed ACC is set to
+		self.CarSpeed = 0.0
 	#end __init__
 #end ROSData

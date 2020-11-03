@@ -43,6 +43,25 @@ class SimulateData:
 			obstacle.y +=0.05
 			time.sleep(0.1)
         #end for
+        
+        while obstacle.y < 5:
+			obstacle.y +=0.05
+			time.sleep(0.1)
+			
+        for i in range(30):
+			obstacle.x -=0.05
+			obstacle.y +=0.05
+			time.sleep(0.1)
+        #end for
+        obstacle.lanePosition = LanePosition.CENTER
+        obstacle.x = 1.5
+        
+        for i in range(30):
+			obstacle.x -=0.05
+			obstacle.y +=0.05
+			time.sleep(0.1)
+			
+			
         while obstacle.y < 15:
 			obstacle.y +=0.05
 			time.sleep(0.1)

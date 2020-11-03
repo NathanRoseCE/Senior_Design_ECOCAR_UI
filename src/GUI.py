@@ -20,7 +20,7 @@ class Obstacle_GUI:
 		self.image = Image.open('../resources/Car1.gif')
 		self.hidden=False
 		self.master= master
-		self.label = Label(self.master)
+		self.label = Label(self.master) 
 	#end  __init__
 	
 	def update(self, x, y, xPixels, yPixels):
@@ -105,6 +105,76 @@ class Lane_GUI:
 	def __del__(self):
 		self.hide() #Hide, then DIE
 	#end __del__
+	
+class FrontCarTracker:
+	def __init__(self, master, ros, ecoCar):
+		self.data = ros
+		self.master= master
+		self.ecoCar = ecoCar
+		self.text = StringVar()
+		self.label = Label(self.master, text = "Initiliazed")
+		self.label.place( relx = 0.5, rely = 0, anchor='nw') 
+		self.hidden = False
+	#end  __init__
+	
+	def update(self):
+		#ensure proper image is loaded(rn its only dashed yellow)
+		if not self.hidden:
+			distance = self.distanceToFrontCar()
+			if distance is None:
+				text = "None in Front"
+			else: 
+				text =str(distance)
+			#end if
+			self.label.destroy()
+			self.label = Label(self.master, text = text)
+			self.label.place( relx = 0.5, rely = 0, anchor='nw') 
+		#end if
+	#end update
+			
+	def distanceToFrontCar(self):
+		carsInLane = []
+		obstacles = self.data.obstacles.copy()
+		for obstacle in obstacles:
+			if obstacles[obstacle].lanePosition == LanePosition.CENTER:
+				if obstacles[obstacle].y > 0:
+					carsInLane.append(obstacles[obstacle])
+			#end if
+		#end for
+		
+		if carsInLane == []:
+			return None
+		#end if
+		
+		closestCar = carsInLane[0]
+		for car in carsInLane:
+			if closestCar.y > car.y:
+				closestCar = car
+			#end if
+		#end for
+		
+		distance = closestCar.y - closestCar.sizeY/2 - self.ecoCar.sizeY/2
+		return distance
+	#end checkCarInFront
+	def hide(self):
+		self.hidden = True
+		self.label.destroy()
+	#end hide
+	
+	def show(self):
+		self.hidden = False
+	#end show
+	
+	def __del__(self):
+		self.hide() #Hide, then DIE
+	#end __del__
+#end FrontCarTracker
+class EcoCar:
+	def __init__(self, sizeX, sizeY):
+		self.sizeX = sizeX
+		self.sizeY = sizeY
+	#end init
+#end EcoCar
 class GUI:
 
 	def hide(self):
@@ -126,14 +196,14 @@ class GUI:
 		self.obstacleGUIs = {}
 		self.laneGUIs = {}
 		
-		#set up canvas
+		#set up GUI
 		self.master=master
-		#self.canvas=Canvas(master)
-		#self.canvas.pack()
-    	#display ecoCar
+		self.ecoCar = EcoCar(1, 2)
 		self.ECOCarImage = Image.open('../resources/Car2.gif')
 		self.EcoCarLabel = Label(self.master) 
 		self.updateECOCarImage()
+		
+		self.frontCarTracker = FrontCarTracker(master, self.data, self.ecoCar)
        
 	#end __init__
 	def update(self):
@@ -141,9 +211,12 @@ class GUI:
 			self.updateECOCarImage()
 			self.updateObstacles()
 			self.updateLanes()
+			self.updateFrontCarChecker()
 		#end of
 	#end update
-	
+	def updateFrontCarChecker(self):
+		self.frontCarTracker.update()
+	#end updateFrontCarChecker
 	def updateObstacles(self):
 		currentlyTracked = self.obstacleGUIs.keys()
 		obstacleCpy = self.data.obstacles.copy()
@@ -192,8 +265,8 @@ class GUI:
 			self.EcoCarLabel.destroy()
 			(x, y) = self.getGUIPoint( (0,0), LanePosition.CENTER) 
 			(xRatio, yRatio) = self.relativeToGUIScale()
-			xPixels = int(1 * xRatio)
-			yPixels = int(2 * yRatio)
+			xPixels = int(self.ecoCar.sizeX * xRatio)
+			yPixels = int(self.ecoCar.sizeY * yRatio)
 			self.photoImage = ImageTk.PhotoImage(self.ECOCarImage.resize((int(xPixels), int(yPixels)))) 
 			self.EcoCarLabel = Label(self.master, image=self.photoImage) 
 			self.EcoCarLabel.place( relx = x, rely = y, anchor='center') 
