@@ -18,6 +18,12 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/EcoCARUI.py" root0="FORCE_HIGHLIGHTING" />
+  </component>
+>>>>>>> e4b9d47b29b83028ff6adf6582a8200542673a4c
 =======
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/EcoCARUI.py" root0="FORCE_HIGHLIGHTING" />
@@ -33,7 +39,11 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
 <<<<<<< HEAD
+<<<<<<< HEAD
   <component name="RunManager" selected="Python.graphics">
+=======
+  <component name="RunManager" selected="Python.EcoCARUI">
+>>>>>>> e4b9d47b29b83028ff6adf6582a8200542673a4c
 =======
   <component name="RunManager" selected="Python.EcoCARUI">
 >>>>>>> e4b9d47b29b83028ff6adf6582a8200542673a4c
@@ -103,9 +113,15 @@
     <recent_temporary>
       <list>
 <<<<<<< HEAD
+<<<<<<< HEAD
         <item itemvalue="Python.graphics" />
         <item itemvalue="Python.EcoCARUI" />
         <item itemvalue="Python.ROSData" />
+=======
+        <item itemvalue="Python.EcoCARUI" />
+        <item itemvalue="Python.ROSData" />
+        <item itemvalue="Python.graphics" />
+>>>>>>> e4b9d47b29b83028ff6adf6582a8200542673a4c
 =======
         <item itemvalue="Python.EcoCARUI" />
         <item itemvalue="Python.ROSData" />
@@ -132,6 +148,7 @@
     </state>
     <state x="420" y="95" key="FileChooserDialogImpl/0.0.1280.680@0.0.1280.680" timestamp="1603724887203" />
 <<<<<<< HEAD
+<<<<<<< HEAD
     <state width="1259" height="147" key="GridCell.Tab.0.bottom" timestamp="1603827081387">
       <screen x="0" y="0" width="1280" height="680" />
     </state>
@@ -149,6 +166,8 @@
     </state>
     <state width="1259" height="147" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1603827081387" />
 =======
+=======
+>>>>>>> e4b9d47b29b83028ff6adf6582a8200542673a4c
     <state width="1259" height="147" key="GridCell.Tab.0.bottom" timestamp="1603725434585">
       <screen x="0" y="0" width="1280" height="680" />
     </state>
@@ -165,6 +184,9 @@
       <screen x="0" y="0" width="1280" height="680" />
     </state>
     <state width="1259" height="147" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1603725434585" />
+<<<<<<< HEAD
+>>>>>>> e4b9d47b29b83028ff6adf6582a8200542673a4c
+=======
 >>>>>>> e4b9d47b29b83028ff6adf6582a8200542673a4c
     <state width="1224" height="185" key="GridCell.Tab.1.bottom" timestamp="1603723579766">
       <screen x="0" y="0" width="1280" height="680" />
