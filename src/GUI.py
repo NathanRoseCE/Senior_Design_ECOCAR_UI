@@ -17,7 +17,7 @@ from tester import SimulateData
 class Obstacle_GUI:
 	def __init__(self, master, oid):
 		self.oid = oid
-		self.image = Image.open('./Car1.gif')
+		self.image = Image.open('../resources/Car1.gif')
 		self.hidden=False
 		self.master= master
 		self.label = Label(self.master)
@@ -62,20 +62,20 @@ class Lane_GUI:
 	def loadImage(self):
 		if self.lastLoadLeft != self.data.lanes[self.lanePosition].laneTypeRight:
 			if self.data.lanes[self.lanePosition].laneTypeRight == LaneType.LANE_TYPE_DASHED:
-				self.imageRight = Image.open('./dashedWhiteLine.png')
+				self.imageRight = Image.open('../resources/dashedWhiteLine.png')
 			elif self.data.lanes[self.lanePosition].laneTypeRight == LaneType.LANE_TYPE_SOLID:
-				self.imageRight = Image.open('./solidWhiteLine.png')
+				self.imageRight = Image.open('../resources/solidWhiteLine.png')
 			else: 
-				self.imageRight = Image.open('./dashedYellowLine.png')
+				self.imageRight = Image.open('../resources/dashedYellowLine.png')
 			self.lastLoadRight = self.data.lanes[self.lanePosition].laneTypeRight
 			
 		if self.lastLoadLeft != self.data.lanes[self.lanePosition].laneTypeLeft:
 			if self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_DASHED:
-				self.imageLeft = Image.open('./dashedWhiteLine.png')
+				self.imageLeft = Image.open('../resources/dashedWhiteLine.png')
 			elif self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_SOLID:
-				self.imageLeft = Image.open('./solidWhiteLine.png')
+				self.imageLeft = Image.open('../resources/solidWhiteLine.png')
 			else:
-				self.imageLeft = Image.open('./dashedYellowLine.png')
+				self.imageLeft = Image.open('../resources/dashedYellowLine.png')
 			self.lastLoadLeft= self.data.lanes[self.lanePosition].laneTypeLeft
 			
 	def update(self, xl, yl, xr, yr,  xPixels, yPixels):
@@ -131,7 +131,7 @@ class GUI:
 		#self.canvas=Canvas(master)
 		#self.canvas.pack()
     	#display ecoCar
-		self.ECOCarImage = Image.open('./Car2.gif')
+		self.ECOCarImage = Image.open('../resources/Car2.gif')
 		self.EcoCarLabel = Label(self.master) 
 		self.updateECOCarImage()
        

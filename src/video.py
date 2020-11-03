@@ -7,7 +7,7 @@ class VideoPlayer:
 		vidPlayer = vlc.MediaPlayer()
 		vidPlayer.set_fullscreen(True)
 
-		video = vlc.Media("vid.mp4")
+		video = vlc.Media("../resources/vid.mp4")
 		vidPlayer.set_media(video)
 		vidPlayer.play()
 		sleep(0.1)
