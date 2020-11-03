@@ -2,12 +2,12 @@ import vlc
 from time import sleep
 
 class VideoPlayer:
-	def videoPlayerPlay():
+	def videoPlayerPlay(self):
 
 		vidPlayer = vlc.MediaPlayer()
 		vidPlayer.set_fullscreen(True)
 
-		video = vlc.Media("name.ext")
+		video = vlc.Media("vid.mp4")
 		vidPlayer.set_media(video)
 		vidPlayer.play()
 		sleep(0.1)
