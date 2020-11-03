@@ -44,7 +44,7 @@ class SimulateData:
 			time.sleep(0.1)
         #end for
         
-        while obstacle.y < 5:
+        while obstacle.y < 3:
 			obstacle.y +=0.05
 			time.sleep(0.1)
 			
