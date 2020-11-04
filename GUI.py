@@ -2,14 +2,14 @@
 import threading
 import time
 import sys
-from Tkinter import*
+import tkinter
 from PIL import Image, ImageTk
 #from PIL import Image
 #from OS import *
 sys.path.append("Senior_Design_ECOCAR_UI/ROSData.py")
 from threading import Thread
 from ROSData import *
-from tester import SimulateData      
+from tester import SimulateData
 
 class Obstacle_GUI:
 	def __init__(self, master, oid):
@@ -46,7 +46,7 @@ class Lane_GUI:
 		self.data = ros
 		self.lanePosition = lanePosition
 		self.lastLoadLeft = None
-		lastLoadRight = None
+		self.lastLoadRight = None
 		self.imageLeft = None
 		self.imageRight = None
 		self.hidden= False
@@ -59,21 +59,56 @@ class Lane_GUI:
 	def loadImage(self):
 		if self.lastLoadLeft != self.data.lanes[self.lanePosition].laneTypeRight:
 			if self.data.lanes[self.lanePosition].laneTypeRight == LaneType.LANE_TYPE_DASHED:
-				self.imageRight = Image.open('./dashedWhiteLine.png')
+				self.imageLeft = Image.open('./dashedWhiteLine.png')
 			elif self.data.lanes[self.lanePosition].laneTypeRight == LaneType.LANE_TYPE_SOLID:
-				self.imageRight = Image.open('./solidWhiteLine.png')
-			else: 
+				self.imageLeft = Image.open('./solidWhiteLine.png')
+			elif self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_SOLID:
+				self.imageLeft = Image.open('./solidWhiteLine.png')
+			elif self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_Dashed:
+				self.imageLeft = Image.open('./dashedWhiteLine.png')
+			else:
 				self.imageRight = Image.open('./dashedYellowLine.png')
-			self.lastLoadRight = self.data.lanes[self.lanePosition].laneTypeRight
+				self.lastLoadRight = self.data.lanes[self.lanePosition].laneTypeRight
 			
 		if self.lastLoadLeft != self.data.lanes[self.lanePosition].laneTypeLeft:
 			if self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_DASHED:
 				self.imageLeft = Image.open('./dashedWhiteLine.png')
 			elif self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_SOLID:
 				self.imageLeft = Image.open('./solidWhiteLine.png')
+			elif self.data.lanes[self.lanePosition].laneTypeRight== LaneType.LANE_TYPE_SOLID:
+				self.imageLeft = Image.open('./solidWhiteLine.png')
+			elif self.data.lanes[self.lanePosition].laneTypeRight== LaneType.LANE_TYPE_Dashed:
+				self.imageLeft = Image.open('./dashedWhiteLine.png')
 			else:
 				self.imageLeft = Image.open('./dashedYellowLine.png')
 			self.lastLoadLeft= self.data.lanes[self.lanePosition].laneTypeLeft
+
+		if self.lastLoadRight != self.data.lanes[self.lanePosition].laneTypeLeft:
+			if self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_DASHED:
+				self.imageRight = Image.open('./dashedWhiteLine.png')
+			elif self.data.lanes[self.lanePosition].laneTypeRight == LaneType.LANE_TYPE_SOLID:
+				self.imageRight = Image.open('./solidWhiteLine.jpg')
+			elif self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_SOLID:
+				self.imageRight = Image.open('./solidWhiteLine.jpg')
+			elif self.data.lanes[self.lanePosition].laneTypeRight == LaneType.LANE_TYPE_Dashed:
+				self.imageRight = Image.open('./dashedWhiteLine.jpg')
+			else:
+				self.imageLeft = Image.open('./dashedYellowLine.png')
+			self.lastLoadLeft= self.data.lanes[self.lanePosition].laneTypeLeft
+
+		if self.lastLoadRight != self.data.lanes[self.lanePosition].laneTypeRight:
+			if self.data.lanes[self.lanePosition].laneTypeRight == LaneType.LANE_TYPE_DASHED:
+				self.imageRight = Image.open('./dashedWhiteLine.pngLine.png')
+			elif self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_SOLID:
+				self.imageRight = Image.open('./solidWhiteline.jpg')
+			elif self.data.lanes[self.lanePosition].laneTypeRight == LaneType.LANE_TYPE_SOLID:
+				self.imageRight = Image.open('./solidWhiteline.jpg')
+			elif self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_Dashed:
+				self.imageRight = Image.open('./dashedWhiteline.jpg')
+			else:
+				self.imageRight = Image.open('./dashedYellowLine.jpg')
+			self.lastLoadRight= self.data.lanes[self.lanePosition].laneTypeRight
+
 			
 	def update(self, xl, yl, xr, yr,  xPixels, yPixels):
 		#ensure proper image is loaded(rn its only dashed yellow)

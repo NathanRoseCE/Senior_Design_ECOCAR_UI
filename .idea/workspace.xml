@@ -34,12 +34,9 @@
       <module name="Senior_Design_ECOCAR_UI" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
+      <option name="SDK_HOME" value="C:\Users\chan9\Desktop\Senior_Design_ECOCAR_UI\venv\Scripts\python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/EcoCARUI.py" />
@@ -93,6 +90,11 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Python.EcoCARUI" />
+      <item itemvalue="Python.graphics" />
+      <item itemvalue="Python.ROSData" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.EcoCARUI" />
@@ -114,6 +116,10 @@
     <servers />
   </component>
   <component name="WindowStateProjectService">
+    <state x="322" y="168" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1603940267237">
+      <screen x="0" y="0" width="1500" height="960" />
+    </state>
+    <state x="322" y="168" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1500.960@0.0.1500.960" timestamp="1603940267237" />
     <state x="420" y="95" key="FileChooserDialogImpl" timestamp="1603724887203">
       <screen x="0" y="0" width="1280" height="680" />
     </state>
@@ -154,10 +160,11 @@
       <screen x="0" y="0" width="1280" height="680" />
     </state>
     <state x="271" y="194" key="Performance.Activity.Monitor/0.0.1280.680@0.0.1280.680" timestamp="1603394868860" />
-    <state x="142" y="0" key="SettingsEditor" timestamp="1603725127784">
-      <screen x="0" y="0" width="1280" height="680" />
+    <state x="739" y="24" width="912" height="936" key="SettingsEditor" timestamp="1603940157380">
+      <screen x="0" y="0" width="1500" height="960" />
     </state>
     <state x="142" y="0" key="SettingsEditor/0.0.1280.680@0.0.1280.680" timestamp="1603725127784" />
+    <state x="739" y="24" width="912" height="936" key="SettingsEditor/0.0.1500.960@0.0.1500.960" timestamp="1603940157380" />
     <state x="303" y="1" width="672" height="678" key="search.everywhere.popup" timestamp="1603387078919">
       <screen x="0" y="0" width="1280" height="680" />
     </state>
