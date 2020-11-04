@@ -1,8 +1,6 @@
 from ROSData import *
 import time
 
-from src.ROSData import LanePosition, ROSData, Obstacle, BlinkerInfo, ObstacleType, Lane, LaneType
-
 
 class SimulateData:
     def __init__(self):

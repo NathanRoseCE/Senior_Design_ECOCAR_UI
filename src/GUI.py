@@ -2,26 +2,25 @@
 # YOU NEED TO RUN 'pip2 install python-vlc' TO RUN NOW
 ################
 import threading
-
 import vlc
 import time
 import sys
-import tkinter
+from Tkinter import*
 from PIL import Image, ImageTk
 #from PIL import Image
 #from OS import *
-tkinter.sys.path.append("Senior_Design_ECOCAR_UI/ROSData.py")
+sys.path.append("Senior_Design_ECOCAR_UI/ROSData.py")
 from threading import Thread
 from ROSData import *
-from tester import SimulateData
+from tester import SimulateData      
 
 class Obstacle_GUI:
 	def __init__(self, master, oid):
 		self.oid = oid
-		self.image = tkinter.Image.open('../resources/Car1.gif')
+		self.image = Image.open('../resources/Car1.gif')
 		self.hidden=False
 		self.master= master
-		self.label = tkinter.Label(self.master)
+		self.label = Label(self.master) 
 	#end  __init__
 	
 	def update(self, x, y, xPixels, yPixels):
@@ -29,7 +28,7 @@ class Obstacle_GUI:
 		if not self.hidden:
 			self.label.destroy()
 			self.photoImage = ImageTk.PhotoImage(self.image.resize((int(xPixels), int(yPixels)))) 
-			self.label = tkinter.Label(self.master, image=self.photoImage)
+			self.label = Label(self.master, image=self.photoImage) 
 			self.label.place( relx = x, rely = y, anchor='center')
 	#end prep
 	def hide(self):
@@ -55,28 +54,28 @@ class Lane_GUI:
 		self.imageRight = None
 		self.hidden= False
 		self.master= master
-		self.labelLeft = tkinter.Label(self.master)
-		self.labelRight= tkinter.Label(self.master)
+		self.labelLeft = Label(self.master)
+		self.labelRight= Label(self.master)
 		self.loadImage()
 	#end  __init__
 	
 	def loadImage(self):
 		if self.lastLoadLeft != self.data.lanes[self.lanePosition].laneTypeRight:
 			if self.data.lanes[self.lanePosition].laneTypeRight == LaneType.LANE_TYPE_DASHED:
-				self.imageRight = tkinter.Image.open('../resources/dashedWhiteLine.png')
+				self.imageRight = Image.open('../resources/dashedWhiteLine.png')
 			elif self.data.lanes[self.lanePosition].laneTypeRight == LaneType.LANE_TYPE_SOLID:
-				self.imageRight = tkinter.Image.open('../resources/solidWhiteLine.png')
+				self.imageRight = Image.open('../resources/solidWhiteLine.png')
 			else: 
-				self.imageRight = tkinter.Image.open('../resources/dashedYellowLine.png')
+				self.imageRight = Image.open('../resources/dashedYellowLine.png')
 			self.lastLoadRight = self.data.lanes[self.lanePosition].laneTypeRight
 			
 		if self.lastLoadLeft != self.data.lanes[self.lanePosition].laneTypeLeft:
 			if self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_DASHED:
-				self.imageLeft = tkinter.Image.open('../resources/dashedWhiteLine.png')
+				self.imageLeft = Image.open('../resources/dashedWhiteLine.png')
 			elif self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_SOLID:
-				self.imageLeft = tkinter.Image.open('../resources/solidWhiteLine.png')
+				self.imageLeft = Image.open('../resources/solidWhiteLine.png')
 			else:
-				self.imageLeft = tkinter.Image.open('../resources/dashedYellowLine.png')
+				self.imageLeft = Image.open('../resources/dashedYellowLine.png')
 			self.lastLoadLeft= self.data.lanes[self.lanePosition].laneTypeLeft
 			
 	def update(self, xl, yl, xr, yr,  xPixels, yPixels):
@@ -85,12 +84,12 @@ class Lane_GUI:
 			self.loadImage()
 			self.labelLeft.destroy()
 			self.photoImageLeft = ImageTk.PhotoImage(self.imageLeft.resize((int(xPixels), int(yPixels)))) 
-			self.labelLeft = tkinter.Label(self.master, image=self.photoImageLeft)
+			self.labelLeft = Label(self.master, image=self.photoImageLeft) 
 			self.labelLeft.place( relx = xl, rely = yl, anchor='center')
 			
 			self.labelRight.destroy()
 			self.photoImageRight = ImageTk.PhotoImage(self.imageRight.resize((int(xPixels), int(yPixels)))) 
-			self.labelRight = tkinter.Label(self.master, image=self.photoImageRight)
+			self.labelRight = Label(self.master, image=self.photoImageRight) 
 			self.labelRight.place( relx = xr, rely = yr, anchor='center')
 	#end prep
 	def hide(self):
@@ -112,8 +111,8 @@ class FrontCarTracker:
 		self.data = ros
 		self.master= master
 		self.ecoCar = ecoCar
-		self.text = tkinter.StringVar()
-		self.label = tkinter.Label(self.master, text ="Initiliazed")
+		self.text = StringVar()
+		self.label = Label(self.master, text = "Initiliazed")
 		self.label.place( relx = 0.5, rely = 0, anchor='nw') 
 		self.hidden = False
 	#end  __init__
@@ -128,7 +127,7 @@ class FrontCarTracker:
 				text =str(distance)
 			#end if
 			self.label.destroy()
-			self.label = tkinter.Label(self.master, text = text)
+			self.label = Label(self.master, text = text)
 			self.label.place( relx = 0.5, rely = 0, anchor='nw') 
 		#end if
 	#end update
@@ -200,8 +199,8 @@ class GUI:
 		#set up GUI
 		self.master=master
 		self.ecoCar = EcoCar(1, 2)
-		self.ECOCarImage = tkinter.Image.open('../resources/Car2.gif')
-		self.EcoCarLabel = tkinter.Label(self.master)
+		self.ECOCarImage = Image.open('../resources/Car2.gif')
+		self.EcoCarLabel = Label(self.master) 
 		self.updateECOCarImage()
 		
 		self.frontCarTracker = FrontCarTracker(master, self.data, self.ecoCar)
@@ -264,12 +263,12 @@ class GUI:
 	def updateECOCarImage(self):
 		if not self.hidden:
 			self.EcoCarLabel.destroy()
-			(x, y) = self.getGUIPoint( (0,0), LanePosition.CENTER)
+			(x, y) = self.getGUIPoint( (0,0), LanePosition.CENTER) 
 			(xRatio, yRatio) = self.relativeToGUIScale()
 			xPixels = int(self.ecoCar.sizeX * xRatio)
 			yPixels = int(self.ecoCar.sizeY * yRatio)
 			self.photoImage = ImageTk.PhotoImage(self.ECOCarImage.resize((int(xPixels), int(yPixels)))) 
-			self.EcoCarLabel = tkinter.Label(self.master, image=self.photoImage)
+			self.EcoCarLabel = Label(self.master, image=self.photoImage) 
 			self.EcoCarLabel.place( relx = x, rely = y, anchor='center') 
 			#self.EcoCarLabel.pack()
 	#end setupECOCarImage
@@ -407,14 +406,14 @@ def updateLoop(GUI):
 	#end while
 #end updateLoop
 if __name__ == '__main__':
-	root = tkinter.Tk()
+	root = Tk()
 	w, h = root.winfo_screenwidth(), root.winfo_screenheight()
-	frame = tkinter.Frame(root, bg="black", height=h * 1, width=w * 0.5)
+	frame = Frame(root, bg="black", height=h*1, width=w*0.5)
 	frame.pack(  )
 	root.geometry("%dx%d+0+0" % (w, h))
 	simulator = SimulateData()
 	gui = GUI(frame, 0.0, 1.0, 1.0, 0.0)
-	vidButton = tkinter.Button(root, text="video", command=videoPlay)
+	vidButton = Button(root, text="video", command=videoPlay)
 	vidButton.place(x=10,y=10)
 	#root.bind("<Left>", left)
 	#root.bind("<Right>", right)
