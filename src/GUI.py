@@ -285,11 +285,35 @@ class GUI:
 		y *= yRatio
 		y += self.yMin
 		
-		
-		leftWidth = self.data.lanes[LanePosition.LEFT].laneWidth
+		noLeftLane = False
+		noRightLane = False
 		centerWidth = self.data.lanes[LanePosition.CENTER].laneWidth
-		rightWidth = self.data.lanes[LanePosition.RIGHT].laneWidth
-		xShow = leftWidth + rightWidth + centerWidth
+		xShow = centerWidth
+		leftWidth = -1
+		rightWidth = -1
+		try:
+			leftWidth = self.data.lanes[LanePosition.LEFT].laneWidth
+			xShow += leftWidth
+		except KeyError:
+			noLeftLane = True
+		#end try
+		
+		try:
+			rightWidth = self.data.lanes[LanePosition.RIGHT].laneWidth
+			xShow += rightWidth
+		except KeyError:
+			noRightLane = True
+		#end try
+		
+		
+		#center the image if there are two lanes
+		if noLeftLane and not noRightLane:
+			x -= (rightWidth + centerWidth)/4
+		elif noRightLane and not noLeftLane:
+			x += (rightWidth + centerWidth)/4
+		#end if
+		
+		
 		xRatio = (self.xMax - self.xMin)/(xShow)
 		x *= xRatio
 		x += self.xMin
@@ -304,16 +328,25 @@ class GUI:
 	
 	def translateLaneToRelative(self, laneCoordinates, lanePosition):
 		(x, y) = laneCoordinates
-		#TODO account for 2 lane road
-		leftWidth = self.data.lanes[LanePosition.LEFT].laneWidth
-		centerWidth = self.data.lanes[LanePosition.CENTER].laneWidth
-		rightWidth = self.data.lanes[LanePosition.RIGHT].laneWidth
+		
 		
 		laneCenter = 0.0
-		if lanePosition == LanePosition.LEFT:
-			laneCenter = -((centerWidth/2.0) + (leftWidth/2.0))
-		elif lanePosition == LanePosition.RIGHT:
-			laneCenter = (centerWidth/2.0) + (rightWidth/2.0)
+		centerWidth = self.data.lanes[LanePosition.CENTER].laneWidth
+		try:
+			leftWidth = self.data.lanes[LanePosition.LEFT].laneWidth
+			if lanePosition == LanePosition.LEFT:
+				laneCenter = -((centerWidth/2.0) + (leftWidth/2.0))
+		except KeyError:
+			pass
+		#end try
+		try:
+			rightWidth = self.data.lanes[LanePosition.RIGHT].laneWidth
+			if lanePosition == LanePosition.RIGHT:
+				laneCenter = (centerWidth/2.0) + (rightWidth/2.0)
+		except KeyError:
+			pass
+		#end try
+		
 		#end if 
 		x += laneCenter
 		return (x, y)
@@ -322,18 +355,26 @@ class GUI:
 	def relativeToGUIScale(self):
 		self.master.update()
 		w, h = self.master.winfo_height(), self.master.winfo_height()
-		leftWidth = self.data.lanes[LanePosition.LEFT].laneWidth
-		centerWidth = self.data.lanes[LanePosition.CENTER].laneWidth
-		rightWidth = self.data.lanes[LanePosition.RIGHT].laneWidth
-		relativeWidth = leftWidth + centerWidth + rightWidth
+		
+		relativeWidth = self.data.lanes[LanePosition.CENTER].laneWidth
+		try:
+			leftWidth = self.data.lanes[LanePosition.LEFT].laneWidth
+			relativeWidth += leftWidth
+		except KeyError:
+			noLeftLane = True
+		#end try
+		
+		try:
+			rightWidth = self.data.lanes[LanePosition.RIGHT].laneWidth
+			relativeWidth += rightWidth
+		except KeyError:
+			noRightLane = True
+		#end try
+		
 		relativeHeight = self.showYDistance
 		
 		yRatio = h/relativeHeight
 		
-#		leftWidth = self.data.lanes[LanePosition.LEFT].laneWidth
-#		centerWidth = self.data.lanes[LanePosition.CENTER].laneWidth
-#		rightWidth = self.data.lanes[LanePosition.RIGHT].laneWidth
-#		xShow = leftWidth + rightWidth + centerWidth
 		xRatio = w/relativeWidth
 		yRatio = abs(yRatio)
 		xRatio = abs(xRatio)
@@ -349,7 +390,7 @@ def mainTest():
 def videoPlay():
 	vidPlayer = vlc.MediaPlayer()
 	vidPlayer.set_fullscreen(True)
-	video = vlc.Media("IMG_1114.mp4")
+	video = vlc.Media("../resources/vid.mp4")
 	vidPlayer.set_media(video)
 	vidPlayer.play()
 	time.sleep(0.1)
@@ -378,15 +419,18 @@ if __name__ == '__main__':
 	#root.bind("<Right>", right)
 	#root.bind("<Up>", up)
 	#root.bind("<Down>", down)
-	test = Thread( target=simulator.runCarPassing)
+	test = Thread( target=simulator.twoLaneTest)
 	test.setDaemon(True)
 	test.start()
-	test2 = Thread( target=simulator.runCarChangeLane)
-	test2.setDaemon(True)
-	test2.start()
-	test3 = Thread( target=updateLoop, args=(gui,))
-	test3.setDaemon(True)
-	test3.start()
+	#test = Thread( target=simulator.runCarPassing)
+	#test.setDaemon(True)
+	#test.start()
+	#test2 = Thread( target=simulator.runCarChangeLane)
+	#test2.setDaemon(True)
+	#test2.start()
+	mainLoop = Thread( target=updateLoop, args=(gui,))
+	mainLoop.setDaemon(True)
+	mainLoop.start()
 	
 	root.mainloop()
 
