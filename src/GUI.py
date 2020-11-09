@@ -17,7 +17,7 @@ from tester import SimulateData
 class Obstacle_GUI:
 	def __init__(self, master, oid):
 		self.oid = oid
-		self.image = Image.open('../resources/Car1.gif')
+		self.image = Image.open('../resources/Car1.png')
 		self.hidden=False
 		self.master= master
 		self.label = Label(self.master) 
@@ -79,7 +79,7 @@ class Lane_GUI:
 			self.lastLoadLeft= self.data.lanes[self.lanePosition].laneTypeLeft
 
 		#topBar = PhotoImage(file= r'../resources/topBar.png')
-		self.topBar = Image.open('../resources/topBar.png')
+		
 			
 	def update(self, xl, yl, xr, yr,  xPixels, yPixels):
 		#ensure proper image is loaded(rn its only dashed yellow)
@@ -96,10 +96,6 @@ class Lane_GUI:
 			self.labelRight.place( relx = xr, rely = yr, anchor='center')
 
 			
-			self.photoTopBar = ImageTk.PhotoImage(self.topbar.resize((int(xPixels), int(yPixels))))
-			self.labelTopBar = Label(self.master, image=self.photoTopBar)
-			self.labelTopBar.place( relx = xr, rely = yr, anchor='center')			
-
 
 
 
@@ -212,7 +208,7 @@ class GUI:
 		#set up GUI
 		self.master=master
 		self.ecoCar = EcoCar(1, 2)
-		self.ECOCarImage = Image.open('../resources/Car2.gif')
+		self.ECOCarImage = Image.open('../resources/Car2.png')
 		self.EcoCarLabel = Label(self.master) 
 		self.updateECOCarImage()
 
@@ -423,14 +419,25 @@ def updateLoop(GUI):
 #end updateLoop
 if __name__ == '__main__':
 	root = Tk()
+	root.configure(bg='#d9d9d9')
 	w, h = root.winfo_screenwidth(), root.winfo_screenheight()
 	frame = Frame(root, bg="black", height=h*1, width=w*0.5)
 	frame.pack(  )
 	root.geometry("%dx%d+0+0" % (w, h))
 	simulator = SimulateData()
 	gui = GUI(frame, 0.0, 1.0, 1.0, 0.0)
-	photo = PhotoImage(file = r'../resources/button1Test.png')
-	vidButton = Button(root, image = photo, command=videoPlay, bd = 0)
+	#photo = PhotoImage(file = r'../resources/button1Test.png')
+	topbarimg = Image.open('../resources/topBar.png')
+	topbarimg = topbarimg.resize((2000,150),Image.ANTIALIAS)
+	topb = ImageTk.PhotoImage(topbarimg)
+	labelTopBar = Label(root, image=topb)
+	labelTopBar.place(x=0,y=0)
+
+
+	photo = Image.open('../resources/button1Test.png')
+	photo = photo.resize((300,120), Image.ANTIALIAS)
+	photoImg =  ImageTk.PhotoImage(photo)
+	vidButton = Button(root, image = photoImg, command=videoPlay, bd = 0)
 	vidButton.place(x=10,y=10)
 
 	
