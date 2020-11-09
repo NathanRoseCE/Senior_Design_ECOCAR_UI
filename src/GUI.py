@@ -77,6 +77,9 @@ class Lane_GUI:
 			else:
 				self.imageLeft = Image.open('../resources/dashedYellowLine.png')
 			self.lastLoadLeft= self.data.lanes[self.lanePosition].laneTypeLeft
+
+		#topBar = PhotoImage(file= r'../resources/topBar.png')
+		self.topBar = Image.open('../resources/topBar.png')
 			
 	def update(self, xl, yl, xr, yr,  xPixels, yPixels):
 		#ensure proper image is loaded(rn its only dashed yellow)
@@ -91,6 +94,16 @@ class Lane_GUI:
 			self.photoImageRight = ImageTk.PhotoImage(self.imageRight.resize((int(xPixels), int(yPixels)))) 
 			self.labelRight = Label(self.master, image=self.photoImageRight) 
 			self.labelRight.place( relx = xr, rely = yr, anchor='center')
+
+			
+			self.photoTopBar = ImageTk.PhotoImage(self.topbar.resize((int(xPixels), int(yPixels))))
+			self.labelTopBar = Label(self.master, image=self.photoTopBar)
+			self.labelTopBar.place( relx = xr, rely = yr, anchor='center')			
+
+
+
+
+
 	#end prep
 	def hide(self):
 		self.hidden = True
@@ -202,7 +215,10 @@ class GUI:
 		self.ECOCarImage = Image.open('../resources/Car2.gif')
 		self.EcoCarLabel = Label(self.master) 
 		self.updateECOCarImage()
-		
+
+		#self.topBar = Image.open('../resources/topBar.png')
+		#root.create_image(20,20, anchor=NW, image=self.topBar)
+
 		self.frontCarTracker = FrontCarTracker(master, self.data, self.ecoCar)
        
 	#end __init__
@@ -416,6 +432,9 @@ if __name__ == '__main__':
 	photo = PhotoImage(file = r'../resources/button1Test.png')
 	vidButton = Button(root, image = photo, command=videoPlay, bd = 0)
 	vidButton.place(x=10,y=10)
+
+	
+
 	#root.bind("<Left>", left)
 	#root.bind("<Right>", right)
 	#root.bind("<Up>", up)
