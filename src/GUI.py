@@ -301,7 +301,7 @@ class GUI:
 			(xr, yr) = self.getGUIPoint( (lne.laneWidth/2, 0), lane) 
 			(xRatio, yRatio) = self.relativeToGUIScale()
 			xPixels = int(0.1 * xRatio)
-			yPixels = int(self.showYDistance*2 * yRatio)
+			yPixels = int(self.showYDistance * yRatio)
 			self.laneGUIs[lane].update(xl, yl, xr, yr, xPixels, yPixels)
 		#end for
 		for dissapeared in trackedLanes:
