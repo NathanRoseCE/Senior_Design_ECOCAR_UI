@@ -438,7 +438,7 @@ if __name__ == '__main__':
 	photo = photo.resize((150,60), Image.ANTIALIAS)
 	photoImg =  ImageTk.PhotoImage(photo)
 	vidButton = Button(root, image = photoImg, command=videoPlay, bd = 0)
-	vidButton.place(x=10,y=10)
+	vidButton.place(x=0,y=0)
 
 	
 
