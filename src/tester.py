@@ -6,6 +6,7 @@ class SimulateData:
     def __init__(self):
         self.data = ROSData()
         self.setupLanes()
+        self.data.CarSpeed = 20.0
     #end __init__
     
     def runCarPassing(self):
