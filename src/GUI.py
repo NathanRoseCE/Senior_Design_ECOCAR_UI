@@ -428,14 +428,14 @@ if __name__ == '__main__':
 	gui = GUI(frame, 0.0, 1.0, 1.0, 0.0)
 	#photo = PhotoImage(file = r'../resources/button1Test.png')
 	topbarimg = Image.open('../resources/topBar.png')
-	topbarimg = topbarimg.resize((2000,150),Image.ANTIALIAS)
+	topbarimg = topbarimg.resize((2000,75),Image.ANTIALIAS)
 	topb = ImageTk.PhotoImage(topbarimg)
 	labelTopBar = Label(root, image=topb)
 	labelTopBar.place(x=0,y=0)
 
 
 	photo = Image.open('../resources/button1Test.png')
-	photo = photo.resize((300,120), Image.ANTIALIAS)
+	photo = photo.resize((150,60), Image.ANTIALIAS)
 	photoImg =  ImageTk.PhotoImage(photo)
 	vidButton = Button(root, image = photoImg, command=videoPlay, bd = 0)
 	vidButton.place(x=10,y=10)
