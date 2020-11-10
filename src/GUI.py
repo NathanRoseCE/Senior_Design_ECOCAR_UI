@@ -49,7 +49,7 @@ class Lane_GUI:
 		self.data = ros
 		self.lanePosition = lanePosition
 		self.lastLoadLeft = None
-		lastLoadRight = None
+		self.lastLoadRight = None
 		self.imageLeft = None
 		self.imageRight = None
 		self.hidden= False
@@ -60,13 +60,24 @@ class Lane_GUI:
 	#end  __init__
 	
 	def loadImage(self):
-		if self.lastLoadLeft != self.data.lanes[self.lanePosition].laneTypeRight:
+		if self.lastLoadRight!= self.data.lanes[self.lanePosition].laneTypeRight:
 			if self.data.lanes[self.lanePosition].laneTypeRight == LaneType.LANE_TYPE_DASHED:
 				self.imageRight = Image.open('../resources/dashedWhiteLine.png')
 			elif self.data.lanes[self.lanePosition].laneTypeRight == LaneType.LANE_TYPE_SOLID:
 				self.imageRight = Image.open('../resources/solidWhiteLine.png')
-			else: 
-				self.imageRight = Image.open('../resources/dashedYellowLine.png')
+			elif self.data.lanes[self.lanePosition].laneTypeRight == LaneType.LANE_TYPE_NONE:
+				self.imageRight = Image.open('../resources/Blackline.png')	
+			elif self.data.lanes[self.lanePosition].laneTypeRight == LaneType.LANE_TYPE_ROAD_EDGE:
+				self.imageRight = Image.open('../resources/solidWhiteLine.png')
+			
+			elif self.data.lanes[self.lanePosition].laneTypeRight == LaneType.LANE_TYPE_DOUBLE_LANE_MARK:
+				self.imageRight = Image.open('../resources/Doublelane.jpg')
+			
+			elif self.data.lanes[self.lanePosition].laneTypeRight == LaneType.LANE_TYPE_BOTTS_DOTS:
+				self.imageRight = Image.open('../resources/Blackline.png')
+			elif self.data.lanes[self.lanePosition].laneTypeRight == LaneType.LANE_TYPE_INVALID:
+				self.imageRight = Image.open('../resources/Redline.png')
+			
 			self.lastLoadRight = self.data.lanes[self.lanePosition].laneTypeRight
 			
 		if self.lastLoadLeft != self.data.lanes[self.lanePosition].laneTypeLeft:
@@ -74,8 +85,24 @@ class Lane_GUI:
 				self.imageLeft = Image.open('../resources/dashedWhiteLine.png')
 			elif self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_SOLID:
 				self.imageLeft = Image.open('../resources/solidWhiteLine.png')
-			else:
-				self.imageLeft = Image.open('../resources/dashedYellowLine.png')
+			elif self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_NONE:
+				self.imageRight = Image.open('../resources/Blackline.png')	
+				
+			elif self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_ROAD_EDGE:
+				self.imageRight = Image.open('../resources/solidWhiteLine.png')
+			
+			
+			elif self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_DOUBLE_LANE_MARK:
+				self.imageRight = Image.open('../resources/Doublelane.jpg')
+			
+			
+			elif self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_BOTTS_DOTS:
+				self.imageRight = Image.open('../resources/Blackline.png')
+			
+			
+			elif self.data.lanes[self.lanePosition].laneTypeLeft == LaneType.LANE_TYPE_INVALID:
+				self.imageRight = Image.open('../resources/Redline.png')
+			
 			self.lastLoadLeft= self.data.lanes[self.lanePosition].laneTypeLeft
 			
 	def update(self, xl, yl, xr, yr,  xPixels, yPixels):
