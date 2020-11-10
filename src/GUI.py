@@ -427,7 +427,7 @@ if __name__ == '__main__':
 	simulator = SimulateData()
 	gui = GUI(frame, 0.0, 1.0, 1.0, 0.0)
 	#photo = PhotoImage(file = r'../resources/button1Test.png')
-	topbarimg = Image.open('../resources/topBar.png')
+	topbarimg = Image.open('../resources/topBar2.png')
 	topbarimg = topbarimg.resize((2000,75),Image.ANTIALIAS)
 	topb = ImageTk.PhotoImage(topbarimg)
 	labelTopBar = Label(root, image=topb)
