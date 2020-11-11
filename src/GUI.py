@@ -215,23 +215,25 @@ class GUI:
 	
 	def setDarkMode(self):
 		self.darkMode = True
+		self.carFrame.config(bg="black")
 	#end setDarkMode
 	
 	def setLightMode(self):
 		self.darkMode = False
+		self.carFrame.config(bg="white")
     #end setLightMode
     
-	def __init__(self, master, showYDistance = 10):
+	def __init__(self, master):
 		# set up some vars
 		self.xMin = 0.0
 		self.xMax = 1.0
 		self.yMin = 1.0 
 		self.yMax = 0.0
-		self.showYDistance = showYDistance
 		self.data = ROSData()
 		self.hidden = False
 		self.obstacleGUIs = {}
 		self.laneGUIs = {}
+		self.updateSeeDistance()
 		
 		#set up GUI
 		master.update()
@@ -240,7 +242,7 @@ class GUI:
 		self.topFrame = Frame(master, bg="white", height=h*0.25, width=w*1.0)
 		self.topFrame.update()
 		self.topFrame.pack(side='top')
-		self.topFrameHandler = TopFrameHandler(self.topFrame)
+		self.topFrameHandler = TopFrameHandler(self.topFrame, self)
 		self.carFrame=Frame(master, bg="black", height=h*0.75, width=w*1.0)
 		self.carFrame.update()
 		self.carFrame.pack(side='bottom')
@@ -259,8 +261,14 @@ class GUI:
 			self.updateObstacles()
 			self.updateLanes()
 			self.updateFrontCarChecker()
+			self.updateSeeDistance()
 		#end of
 	#end update
+	
+	def updateSeeDistance(self):
+		speed = self.data.CarSpeed
+		self.showYDistance = (speed * 0.5) + 10
+	#end updateSeeDistance
 	
 	def updateFrontCarChecker(self):
 		self.frontCarTracker.update()
@@ -433,18 +441,43 @@ class GUI:
 #end GUI
 
 class TopFrameHandler:
-	def __init__(self, frame):
+	def __init__(self, frame, GUI):
 		self.frame = frame
+		self.alerted = False
+		self.darkMode = False
+		self.gui = GUI
+		#self.button = Button(self.frame, text="Toggle Dark Mode", command = self.gui.toggleLightMode, height =2)
+		#frame.grid_rowconfigure(0, weight=1, uniform="x")
+		#frame.grid_rowconfigure(1, weight=1, uniform="x")
+		#frame.grid_columnconfigure(0, weight=1)
+		#self.button.pack()
+
 	#end __init__
 	
 	def alert(self):
+		self.alerted = True
 		self.frame.config(bg="red")
 	#end alert
 	
 	def stopAlert(self):
+		self.alerted = False
 		self.frame.config(bg="white")
 	#end stopAlert
 		
+			
+	def setDarkMode(self):
+		self.darkMode = True
+		if not self.alerted:
+			self.carFrame.config(bg="black")
+		#end if
+	#end setDarkMode
+	
+	def setLightMode(self):
+		self.darkMode = False
+		if not self.alerted:
+			self.carFrame.config(bg="white")
+		#end if
+    #end setLightMode
 #end TopFrameHandler
 def mainTest():
 	time.sleep(5)
@@ -493,6 +526,11 @@ if __name__ == '__main__':
 	#test2 = Thread( target=simulator.runCarChangeLane)
 	#test2.setDaemon(True)
 	#test2.start()
+	
+	test3 = Thread(target=simulator.speedUpEcoCAR)
+	test3.setDaemon(True)
+	test3.start()
+	
 	mainLoop = Thread( target=updateLoop, args=(gui,))
 	mainLoop.setDaemon(True)
 	mainLoop.start()
