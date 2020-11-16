@@ -242,7 +242,7 @@ class GUI:
 		self.topFrame = Frame(master, bg="white", height=h*0.25, width=w*1.0)
 		self.topFrame.update()
 		self.topFrame.pack(side='top')
-		self.topFrameHandler = TopFrameHandler(self.topFrame, self)
+		self.topFrameHandler = TopFrameHandler(self.topFrame, self, h*0.25, w*1.0)
 		self.carFrame=Frame(master, bg="black", height=h*0.75, width=w*1.0)
 		self.carFrame.update()
 		self.carFrame.pack(side='bottom')
@@ -441,19 +441,19 @@ class GUI:
 #end GUI
 
 class TopFrameHandler:
-	def __init__(self, frame, GUI):
+	def __init__(self, frame, GUI, height, width):
 		self.frame = frame
 		self.alerted = False
 		self.darkMode = False
 		self.gui = GUI
-		frame.pack(fill=BOTH, expand = True)
+		#self.frame.grid(row=1, column=3, sticky='nsew')
+		#self.frame.grid_rowconfigure(0, minsize=100, weight=1)
+		#self.frame.grid_columnconfigure(0, minsize=100, weight=1)
+		self.frame.pack(fill=None, expand=False)
 		self.label = Label(self.frame, text = "test")
-		self.button = Button(self.frame, text="Toggle Dark Mode", command = self.gui.toggleLightMode, height =2, padx =20, pady=20)
-		#frame.grid_rowconfigure(0, weight=1, uniform="x")
-		#frame.grid_columnconfigure(0, weight=1)
-		self.button.pack()
-		frame.pack(fill=BOTH, expand = True)
-
+		self.button = Button(self.frame, text="Toggle Dark Mode", command = self.gui.toggleLightMode)
+		self.button.place(relx=.5, rely=.5, anchor="c")
+		#self.button.pack()
 	#end __init__
 	
 	def alert(self):
