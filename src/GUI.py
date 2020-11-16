@@ -28,7 +28,7 @@ class Obstacle_GUI:
 		if not self.hidden:
 			self.label.destroy()
 			self.photoImage = ImageTk.PhotoImage(self.image.resize((int(xPixels), int(yPixels)))) 
-			self.label = Label(self.master, image=self.photoImage) 
+			self.label = Label(self.master, image=self.photoImage, bd=0) 
 			self.label.place( relx = x, rely = y, anchor='center')
 	#end prep
 	def hide(self):
@@ -87,12 +87,12 @@ class Lane_GUI:
 			self.loadImage()
 			self.labelLeft.destroy()
 			self.photoImageLeft = ImageTk.PhotoImage(self.imageLeft.resize((int(xPixels), int(yPixels)))) 
-			self.labelLeft = Label(self.master, image=self.photoImageLeft) 
+			self.labelLeft = Label(self.master, image=self.photoImageLeft, bd=0) 
 			self.labelLeft.place( relx = xl, rely = yl, anchor='center')
 			
 			self.labelRight.destroy()
 			self.photoImageRight = ImageTk.PhotoImage(self.imageRight.resize((int(xPixels), int(yPixels)))) 
-			self.labelRight = Label(self.master, image=self.photoImageRight) 
+			self.labelRight = Label(self.master, image=self.photoImageRight, bd=0) 
 			self.labelRight.place( relx = xr, rely = yr, anchor='center')
 
 			
@@ -121,7 +121,7 @@ class FrontCarTracker:
 		self.master= master
 		self.ecoCar = ecoCar
 		self.text = StringVar()
-		self.label = Label(self.master, text = "Initiliazed")
+		self.label = Label(self.master, text = "Initiliazed", compound=TOP)
 		self.label.place( relx = 0.5, rely = 0, anchor='nw') 
 		self.hidden = False
 	#end  __init__
@@ -136,7 +136,7 @@ class FrontCarTracker:
 				text =str(distance)
 			#end if
 			self.label.destroy()
-			self.label = Label(self.master, text = text)
+			self.label = Label(self.master, text = text, compound=TOP)
 			self.label.place( relx = 0.5, rely = 0, anchor='nw') 
 		#end if
 	#end update
@@ -209,7 +209,7 @@ class GUI:
 		self.master=master
 		self.ecoCar = EcoCar(1, 2)
 		self.ECOCarImage = Image.open('../resources/Car2.png')
-		self.EcoCarLabel = Label(self.master) 
+		self.EcoCarLabel = Label(self.master, bd=0) 
 		self.updateECOCarImage()
 
 		#self.topBar = Image.open('../resources/topBar.png')
@@ -280,7 +280,7 @@ class GUI:
 			xPixels = int(self.ecoCar.sizeX * xRatio)
 			yPixels = int(self.ecoCar.sizeY * yRatio)
 			self.photoImage = ImageTk.PhotoImage(self.ECOCarImage.resize((int(xPixels), int(yPixels)))) 
-			self.EcoCarLabel = Label(self.master, image=self.photoImage) 
+			self.EcoCarLabel = Label(self.master, image=self.photoImage, bd=0) 
 			self.EcoCarLabel.place( relx = x, rely = y, anchor='center') 
 			#self.EcoCarLabel.pack()
 	#end setupECOCarImage
@@ -430,7 +430,7 @@ if __name__ == '__main__':
 	topbarimg = Image.open('../resources/topBar2.png')
 	topbarimg = topbarimg.resize((2000,75),Image.ANTIALIAS)
 	topb = ImageTk.PhotoImage(topbarimg)
-	labelTopBar = Label(root, image=topb)
+	labelTopBar = Label(root, image=topb, compound=BOTTOM)
 	labelTopBar.place(x=0,y=0)
 
 
