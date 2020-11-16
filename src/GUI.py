@@ -446,11 +446,13 @@ class TopFrameHandler:
 		self.alerted = False
 		self.darkMode = False
 		self.gui = GUI
-		#self.button = Button(self.frame, text="Toggle Dark Mode", command = self.gui.toggleLightMode, height =2)
+		frame.pack(fill=BOTH, expand = True)
+		self.label = Label(self.frame, text = "test")
+		self.button = Button(self.frame, text="Toggle Dark Mode", command = self.gui.toggleLightMode, height =2, padx =20, pady=20)
 		#frame.grid_rowconfigure(0, weight=1, uniform="x")
-		#frame.grid_rowconfigure(1, weight=1, uniform="x")
 		#frame.grid_columnconfigure(0, weight=1)
-		#self.button.pack()
+		self.button.pack()
+		frame.pack(fill=BOTH, expand = True)
 
 	#end __init__
 	
