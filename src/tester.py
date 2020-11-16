@@ -6,6 +6,7 @@ class SimulateData:
     def __init__(self):
         self.data = ROSData()
         self.setupLanes()
+        self.data.CarSpeed = 0
     #end __init__
     
     def runCarPassing(self):
@@ -18,6 +19,12 @@ class SimulateData:
         del self.data.obstacles[0]
     #end CarPassing  
     
+    def speedUpEcoCAR(self):
+    	while self.data.CarSpeed < 20:
+			self.data.CarSpeed += 0.5
+			time.sleep(0.1)
+    	#end while    
+    #end speedUpEcoCARs
     def setupLanes(self):
         leftLane = Lane(LaneType.LANE_TYPE_DASHED, LaneType.LANE_TYPE_SOLID, LanePosition.LEFT, 3)
         centerLane = Lane(LaneType.LANE_TYPE_DASHED, LaneType.LANE_TYPE_DASHED, LanePosition.CENTER, 3)

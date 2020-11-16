@@ -26,10 +26,11 @@ class Obstacle_GUI:
 	def update(self, x, y, xPixels, yPixels):
 		#ensure proper image is loaded(rn its only cars)
 		if not self.hidden:
-			self.label.destroy()
+			temp = self.label
 			self.photoImage = ImageTk.PhotoImage(self.image.resize((int(xPixels), int(yPixels)))) 
 			self.label = Label(self.master, image=self.photoImage) 
 			self.label.place( relx = x, rely = y, anchor='center')
+			temp.destroy()
 	#end prep
 	def hide(self):
 		self.hidden = True
@@ -109,15 +110,17 @@ class Lane_GUI:
 		#ensure proper image is loaded(rn its only dashed yellow)
 		if not self.hidden:
 			self.loadImage()
-			self.labelLeft.destroy()
+			temp = self.labelLeft
 			self.photoImageLeft = ImageTk.PhotoImage(self.imageLeft.resize((int(xPixels), int(yPixels)))) 
 			self.labelLeft = Label(self.master, image=self.photoImageLeft) 
 			self.labelLeft.place( relx = xl, rely = yl, anchor='center')
+			temp.destroy()
 			
-			self.labelRight.destroy()
+			temp = self.labelRight
 			self.photoImageRight = ImageTk.PhotoImage(self.imageRight.resize((int(xPixels), int(yPixels)))) 
 			self.labelRight = Label(self.master, image=self.photoImageRight) 
 			self.labelRight.place( relx = xr, rely = yr, anchor='center')
+			temp.destroy()
 	#end prep
 	def hide(self):
 		self.hidden = True
@@ -134,13 +137,14 @@ class Lane_GUI:
 	#end __del__
 	
 class FrontCarTracker:
-	def __init__(self, master, ros, ecoCar):
+	def __init__(self, master, ros, ecoCar, topFrame):
 		self.data = ros
 		self.master= master
 		self.ecoCar = ecoCar
 		self.text = StringVar()
 		self.label = Label(self.master, text = "Initiliazed")
 		self.label.place( relx = 0.5, rely = 0, anchor='nw') 
+		self.topFrame = topFrame
 		self.hidden = False
 	#end  __init__
 	
@@ -153,9 +157,10 @@ class FrontCarTracker:
 			else: 
 				text =str(distance)
 			#end if
-			self.label.destroy()
+			temp = self.label
 			self.label = Label(self.master, text = text)
 			self.label.place( relx = 0.5, rely = 0, anchor='nw') 
+			temp.destroy()
 		#end if
 	#end update
 			
@@ -181,8 +186,24 @@ class FrontCarTracker:
 		#end for
 		
 		distance = closestCar.y - closestCar.sizeY/2 - self.ecoCar.sizeY/2
+		self.alert(distance)
 		return distance
 	#end checkCarInFront
+	
+	def alert(self, distance):
+		if distance is None:
+			return
+		#end if
+		
+		thresholdValue = self.data.CarSpeed * 0.5
+		if distance < thresholdValue:
+			self.topFrame.alert()
+		else:
+			self.topFrame.stopAlert()
+		#end if
+		
+		
+	#end checkIfAlert
 	def hide(self):
 		self.hidden = True
 		self.label.destroy()
@@ -210,27 +231,55 @@ class GUI:
       
 	def show(self):
 		self.hidden = False
-      
-	def __init__(self, master, xMin, xMax, yMin, yMax, showYDistance = 10):
+		
+	def toggleLightMode(self):
+		if self.darkMode == False:
+			self.setDarkMode()
+		else:
+			self.setLightMode()
+		#end if
+	#end toggleLightMode
+	
+	def setDarkMode(self):
+		self.darkMode = True
+		self.carFrame.config(bg="black")
+	#end setDarkMode
+	
+	def setLightMode(self):
+		self.darkMode = False
+		self.carFrame.config(bg="white")
+    #end setLightMode
+    
+	def __init__(self, master):
 		# set up some vars
-		self.xMin = xMin
-		self.xMax = xMax
-		self.yMin = yMin 
-		self.yMax = yMax
-		self.showYDistance = showYDistance
+		self.xMin = 0.0
+		self.xMax = 1.0
+		self.yMin = 1.0 
+		self.yMax = 0.0
 		self.data = ROSData()
 		self.hidden = False
 		self.obstacleGUIs = {}
 		self.laneGUIs = {}
+		self.updateSeeDistance()
 		
 		#set up GUI
-		self.master=master
+		master.update()
+		w, h = master.winfo_width(), master.winfo_height()
+		self.master = master
+		self.topFrame = Frame(master, bg="white", height=h*0.25, width=w*1.0)
+		self.topFrame.update()
+		self.topFrame.pack(side='top')
+		self.topFrameHandler = TopFrameHandler(self.topFrame, self, h*0.25, w*1.0)
+		self.carFrame=Frame(master, bg="black", height=h*0.75, width=w*1.0)
+		self.carFrame.update()
+		self.carFrame.pack(side='bottom')
 		self.ecoCar = EcoCar(1, 2)
 		self.ECOCarImage = Image.open('../resources/Car2.gif')
-		self.EcoCarLabel = Label(self.master) 
+		self.EcoCarLabel = Label(self.carFrame) 
 		self.updateECOCarImage()
 		
-		self.frontCarTracker = FrontCarTracker(master, self.data, self.ecoCar)
+		self.frontCarTracker = FrontCarTracker(master, self.data, self.ecoCar, self.topFrameHandler)
+		self.darkMode = False
        
 	#end __init__
 	def update(self):
@@ -239,11 +288,19 @@ class GUI:
 			self.updateObstacles()
 			self.updateLanes()
 			self.updateFrontCarChecker()
+			self.updateSeeDistance()
 		#end of
 	#end update
+	
+	def updateSeeDistance(self):
+		speed = self.data.CarSpeed
+		self.showYDistance = (speed * 0.5) + 10
+	#end updateSeeDistance
+	
 	def updateFrontCarChecker(self):
 		self.frontCarTracker.update()
 	#end updateFrontCarChecker
+	
 	def updateObstacles(self):
 		currentlyTracked = self.obstacleGUIs.keys()
 		obstacleCpy = self.data.obstacles.copy()
@@ -251,7 +308,7 @@ class GUI:
 			if obstacle in currentlyTracked:
 				currentlyTracked.remove(obstacle)
 			else:
-				self.obstacleGUIs[obstacle] = Obstacle_GUI(self.master, obstacle)
+				self.obstacleGUIs[obstacle] = Obstacle_GUI(self.carFrame, obstacle)
 			#end if
 			obs = self.data.obstacles[obstacle]
 			(x, y) = self.getGUIPoint( (obs.x, obs.y), obs.lanePosition) 
@@ -272,14 +329,14 @@ class GUI:
 			if lane in trackedLanes:
 				trackedLanes.remove(lane)
 			else:
-				self.laneGUIs[lane] = Lane_GUI(self.master, lane, self.data)
+				self.laneGUIs[lane] = Lane_GUI(self.carFrame, lane, self.data)
 			#end if
 			lne = self.data.lanes[lane]
 			(xl, yl) = self.getGUIPoint( (-lne.laneWidth/2, 0), lane) 
 			(xr, yr) = self.getGUIPoint( (lne.laneWidth/2, 0), lane) 
 			(xRatio, yRatio) = self.relativeToGUIScale()
 			xPixels = int(0.1 * xRatio)
-			yPixels = int(self.showYDistance*2 * yRatio)
+			yPixels = int(self.showYDistance * yRatio)
 			self.laneGUIs[lane].update(xl, yl, xr, yr, xPixels, yPixels)
 		#end for
 		for dissapeared in trackedLanes:
@@ -289,14 +346,15 @@ class GUI:
 	
 	def updateECOCarImage(self):
 		if not self.hidden:
-			self.EcoCarLabel.destroy()
+			temp = self.EcoCarLabel
 			(x, y) = self.getGUIPoint( (0,0), LanePosition.CENTER) 
 			(xRatio, yRatio) = self.relativeToGUIScale()
 			xPixels = int(self.ecoCar.sizeX * xRatio)
 			yPixels = int(self.ecoCar.sizeY * yRatio)
 			self.photoImage = ImageTk.PhotoImage(self.ECOCarImage.resize((int(xPixels), int(yPixels)))) 
-			self.EcoCarLabel = Label(self.master, image=self.photoImage) 
+			self.EcoCarLabel = Label(self.carFrame, image=self.photoImage) 
 			self.EcoCarLabel.place( relx = x, rely = y, anchor='center') 
+			temp.destroy()
 			#self.EcoCarLabel.pack()
 	#end setupECOCarImage
 	
@@ -380,8 +438,8 @@ class GUI:
 	#end translateLaneToRelative
 	
 	def relativeToGUIScale(self):
-		self.master.update()
-		w, h = self.master.winfo_height(), self.master.winfo_height()
+		self.carFrame.update()
+		w, h = self.carFrame.winfo_width(), self.carFrame.winfo_height()
 		
 		relativeWidth = self.data.lanes[LanePosition.CENTER].laneWidth
 		try:
@@ -408,6 +466,48 @@ class GUI:
 		return (xRatio,yRatio)
 	
 #end GUI
+
+class TopFrameHandler:
+	def __init__(self, frame, GUI, height, width):
+		self.frame = frame
+		self.alerted = False
+		self.darkMode = False
+		self.gui = GUI
+		#self.frame.grid(row=1, column=3, sticky='nsew')
+		#self.frame.grid_rowconfigure(0, minsize=100, weight=1)
+		#self.frame.grid_columnconfigure(0, minsize=100, weight=1)
+		self.frame.pack(fill=None, expand=False)
+		self.label = Label(self.frame, text = "test")
+		self.button = Button(self.frame, text="Toggle Dark Mode", command = self.gui.toggleLightMode)
+		self.button.place(relx=.5, rely=.5, anchor="c")
+		#self.button.pack()
+	#end __init__
+	
+	def alert(self):
+		self.alerted = True
+		self.frame.config(bg="red")
+	#end alert
+	
+	def stopAlert(self):
+		self.alerted = False
+		self.frame.config(bg="white")
+	#end stopAlert
+		
+			
+	def setDarkMode(self):
+		self.darkMode = True
+		if not self.alerted:
+			self.carFrame.config(bg="black")
+		#end if
+	#end setDarkMode
+	
+	def setLightMode(self):
+		self.darkMode = False
+		if not self.alerted:
+			self.carFrame.config(bg="white")
+		#end if
+    #end setLightMode
+#end TopFrameHandler
 def mainTest():
 	time.sleep(5)
 	test.hide()
@@ -439,7 +539,7 @@ if __name__ == '__main__':
 	frame.pack(  )
 	root.geometry("%dx%d+0+0" % (w, h))
 	simulator = SimulateData()
-	gui = GUI(frame, 0.0, 1.0, 1.0, 0.0)
+	gui = GUI(frame)
 	vidButton = Button(root, text="video", command=videoPlay)
 	vidButton.place(x=10,y=10)
 	#root.bind("<Left>", left)
@@ -455,6 +555,11 @@ if __name__ == '__main__':
 	#test2 = Thread( target=simulator.runCarChangeLane)
 	#test2.setDaemon(True)
 	#test2.start()
+	
+	test3 = Thread(target=simulator.speedUpEcoCAR)
+	test3.setDaemon(True)
+	test3.start()
+	
 	mainLoop = Thread( target=updateLoop, args=(gui,))
 	mainLoop.setDaemon(True)
 	mainLoop.start()
