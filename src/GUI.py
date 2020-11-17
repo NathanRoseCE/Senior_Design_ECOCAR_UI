@@ -17,7 +17,7 @@ from tester import SimulateData
 class Obstacle_GUI:
 	def __init__(self, master, oid):
 		self.oid = oid
-		self.image = Image.open('../resources/Car1.gif')
+		self.image = Image.open('../resources/Car1.png')
 		self.hidden=False
 		self.master= master
 		self.label = Label(self.master) 
@@ -28,7 +28,7 @@ class Obstacle_GUI:
 		if not self.hidden:
 			temp = self.label
 			self.photoImage = ImageTk.PhotoImage(self.image.resize((int(xPixels), int(yPixels)))) 
-			self.label = Label(self.master, image=self.photoImage) 
+			self.label = Label(self.master, image=self.photoImage, bd=0) 
 			self.label.place( relx = x, rely = y, anchor='center')
 			temp.destroy()
 	#end prep
@@ -105,6 +105,9 @@ class Lane_GUI:
 				self.imageRight = Image.open('../resources/Redline.png')
 			
 			self.lastLoadLeft= self.data.lanes[self.lanePosition].laneTypeLeft
+
+		#topBar = PhotoImage(file= r'../resources/topBar.png')
+		
 			
 	def update(self, xl, yl, xr, yr,  xPixels, yPixels):
 		#ensure proper image is loaded(rn its only dashed yellow)
@@ -112,13 +115,13 @@ class Lane_GUI:
 			self.loadImage()
 			temp = self.labelLeft
 			self.photoImageLeft = ImageTk.PhotoImage(self.imageLeft.resize((int(xPixels), int(yPixels)))) 
-			self.labelLeft = Label(self.master, image=self.photoImageLeft) 
+			self.labelLeft = Label(self.master, image=self.photoImageLeft, bd=0) 
 			self.labelLeft.place( relx = xl, rely = yl, anchor='center')
 			temp.destroy()
 			
 			temp = self.labelRight
 			self.photoImageRight = ImageTk.PhotoImage(self.imageRight.resize((int(xPixels), int(yPixels)))) 
-			self.labelRight = Label(self.master, image=self.photoImageRight) 
+			self.labelRight = Label(self.master, image=self.photoImageRight, bd=0) 
 			self.labelRight.place( relx = xr, rely = yr, anchor='center')
 			temp.destroy()
 	#end prep
@@ -142,7 +145,7 @@ class FrontCarTracker:
 		self.master= master
 		self.ecoCar = ecoCar
 		self.text = StringVar()
-		self.label = Label(self.master, text = "Initiliazed")
+		self.label = Label(self.master, text = "Initiliazed", compound=TOP)
 		self.label.place( relx = 0.5, rely = 0, anchor='nw') 
 		self.topFrame = topFrame
 		self.hidden = False
@@ -158,7 +161,7 @@ class FrontCarTracker:
 				text =str(distance)
 			#end if
 			temp = self.label
-			self.label = Label(self.master, text = text)
+			self.label = Label(self.master, text = text, compound=TOP)
 			self.label.place( relx = 0.5, rely = 0, anchor='nw') 
 			temp.destroy()
 		#end if
@@ -274,10 +277,9 @@ class GUI:
 		self.carFrame.update()
 		self.carFrame.pack(side='bottom')
 		self.ecoCar = EcoCar(1, 2)
-		self.ECOCarImage = Image.open('../resources/Car2.gif')
-		self.EcoCarLabel = Label(self.carFrame) 
+		self.ECOCarImage = Image.open('../resources/Car2.png')
+		self.EcoCarLabel = Label(self.master, bd=0) 
 		self.updateECOCarImage()
-		
 		self.frontCarTracker = FrontCarTracker(master, self.data, self.ecoCar, self.topFrameHandler)
 		self.darkMode = False
        
@@ -352,7 +354,7 @@ class GUI:
 			xPixels = int(self.ecoCar.sizeX * xRatio)
 			yPixels = int(self.ecoCar.sizeY * yRatio)
 			self.photoImage = ImageTk.PhotoImage(self.ECOCarImage.resize((int(xPixels), int(yPixels)))) 
-			self.EcoCarLabel = Label(self.carFrame, image=self.photoImage) 
+			self.EcoCarLabel = Label(self.master, image=self.photoImage, bd=0) 
 			self.EcoCarLabel.place( relx = x, rely = y, anchor='center') 
 			temp.destroy()
 			#self.EcoCarLabel.pack()
@@ -534,14 +536,29 @@ def updateLoop(GUI):
 #end updateLoop
 if __name__ == '__main__':
 	root = Tk()
+	root.configure(bg='#d9d9d9')
 	w, h = root.winfo_screenwidth(), root.winfo_screenheight()
 	frame = Frame(root, bg="black", height=h*1, width=w*0.5)
 	frame.pack(  )
 	root.geometry("%dx%d+0+0" % (w, h))
 	simulator = SimulateData()
-	gui = GUI(frame)
-	vidButton = Button(root, text="video", command=videoPlay)
-	vidButton.place(x=10,y=10)
+	gui = GUI(frame, 0.0, 1.0, 1.0, 0.0)
+	#photo = PhotoImage(file = r'../resources/button1Test.png')
+	topbarimg = Image.open('../resources/topBar2.png')
+	topbarimg = topbarimg.resize((2000,75),Image.ANTIALIAS)
+	topb = ImageTk.PhotoImage(topbarimg)
+	labelTopBar = Label(root, image=topb, compound=BOTTOM)
+	labelTopBar.place(x=0,y=0)
+
+
+	photo = Image.open('../resources/button1Test.png')
+	photo = photo.resize((150,60), Image.ANTIALIAS)
+	photoImg =  ImageTk.PhotoImage(photo)
+	vidButton = Button(root, image = photoImg, command=videoPlay, bd = 0)
+	vidButton.place(x=0,y=0)
+
+	
+
 	#root.bind("<Left>", left)
 	#root.bind("<Right>", right)
 	#root.bind("<Up>", up)
