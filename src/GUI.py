@@ -1,6 +1,3 @@
-################
-# YOU NEED TO RUN 'pip2 install python-vlc' TO RUN NOW
-################
 import threading
 import vlc
 import time
@@ -157,12 +154,18 @@ class FrontCarTracker:
 			distance = self.distanceToFrontCar()
 			if distance is None:
 				text = "None in Front"
+
+			elif TopFrameHandler.alerted == True:
+				temp = self.label
+				self.label = Label(self.master, text = text, fg='red', compound=TOP)
+				self.label.place( relx = 0.5, rely = 0.05, anchor='c') 
+
 			else: 
 				text =str(distance)
 			#end if
 			temp = self.label
 			self.label = Label(self.master, text = text, compound=TOP)
-			self.label.place( relx = 0.5, rely = 0, anchor='nw') 
+			self.label.place( relx = 0.5, rely = 0.05, anchor='c') 
 			temp.destroy()
 		#end if
 	#end update
@@ -269,16 +272,16 @@ class GUI:
 		master.update()
 		w, h = master.winfo_width(), master.winfo_height()
 		self.master = master
-		self.topFrame = Frame(master, bg="white", height=h*0.25, width=w*1.0)
+		self.topFrame = Frame(master, bg='#d9d9d9', height=h*0.1, width=w*1.0)
 		self.topFrame.update()
 		self.topFrame.pack(side='top')
 		self.topFrameHandler = TopFrameHandler(self.topFrame, self, h*0.25, w*1.0)
-		self.carFrame=Frame(master, bg="black", height=h*0.75, width=w*1.0)
+		self.carFrame=Frame(master, bg="black", height=h*1, width=w*1.0)
 		self.carFrame.update()
 		self.carFrame.pack(side='bottom')
 		self.ecoCar = EcoCar(1, 2)
 		self.ECOCarImage = Image.open('../resources/Car2.png')
-		self.EcoCarLabel = Label(self.master, bd=0) 
+		self.EcoCarLabel = Label(self.carFrame, bd=0) 
 		self.updateECOCarImage()
 		self.frontCarTracker = FrontCarTracker(master, self.data, self.ecoCar, self.topFrameHandler)
 		self.darkMode = False
@@ -479,9 +482,18 @@ class TopFrameHandler:
 		#self.frame.grid_rowconfigure(0, minsize=100, weight=1)
 		#self.frame.grid_columnconfigure(0, minsize=100, weight=1)
 		self.frame.pack(fill=None, expand=False)
-		self.label = Label(self.frame, text = "test")
-		self.button = Button(self.frame, text="Toggle Dark Mode", command = self.gui.toggleLightMode)
-		self.button.place(relx=.5, rely=.5, anchor="c")
+
+		self.photoDarkMode = Image.open('../resources/darkmodeIObutt.png')
+		self.photoDarkMode = self.photoDarkMode.resize((150,60), Image.ANTIALIAS)
+		self.photoDarkModeImg = ImageTk.PhotoImage(self.photoDarkMode)
+		self.button = Button(self.frame, image=self.photoDarkModeImg, command = self.gui.toggleLightMode, bd=0)
+		self.button.place(relx=.333333, rely=.5, anchor="c")
+		
+		self.photo = Image.open('../resources/button1Test.png')
+		self.photo = self.photo.resize((150,60), Image.ANTIALIAS)
+		self.photoImg =  ImageTk.PhotoImage(self.photo)
+		self.vidButton = Button(self.frame, image=self.photoImg, command=videoPlay, bd=0)
+		self.vidButton.place(relx=.666666, rely=.5, anchor="c")
 		#self.button.pack()
 	#end __init__
 	
@@ -489,10 +501,11 @@ class TopFrameHandler:
 		self.alerted = True
 		self.frame.config(bg="red")
 	#end alert
+
 	
 	def stopAlert(self):
 		self.alerted = False
-		self.frame.config(bg="white")
+		self.frame.config(bg='#d9d9d9')
 	#end stopAlert
 		
 			
@@ -506,7 +519,7 @@ class TopFrameHandler:
 	def setLightMode(self):
 		self.darkMode = False
 		if not self.alerted:
-			self.carFrame.config(bg="white")
+			self.carFrame.config(bg='red')
 		#end if
     #end setLightMode
 #end TopFrameHandler
@@ -542,20 +555,21 @@ if __name__ == '__main__':
 	frame.pack(  )
 	root.geometry("%dx%d+0+0" % (w, h))
 	simulator = SimulateData()
-	gui = GUI(frame, 0.0, 1.0, 1.0, 0.0)
+	gui = GUI(frame)
+	
 	#photo = PhotoImage(file = r'../resources/button1Test.png')
-	topbarimg = Image.open('../resources/topBar2.png')
-	topbarimg = topbarimg.resize((2000,75),Image.ANTIALIAS)
-	topb = ImageTk.PhotoImage(topbarimg)
-	labelTopBar = Label(root, image=topb, compound=BOTTOM)
-	labelTopBar.place(x=0,y=0)
+	
 
 
-	photo = Image.open('../resources/button1Test.png')
-	photo = photo.resize((150,60), Image.ANTIALIAS)
-	photoImg =  ImageTk.PhotoImage(photo)
-	vidButton = Button(root, image = photoImg, command=videoPlay, bd = 0)
-	vidButton.place(x=0,y=0)
+
+	# topbarimg = Image.open('../resources/topBar2.png')
+	# topbarimg = topbarimg.resize((2000,75),Image.ANTIALIAS)
+	# topb = ImageTk.PhotoImage(topbarimg)
+	# labelTopBar = Label(root, image=topb, compound=BOTTOM)
+	# labelTopBar.place(x=0,y=0)
+
+
+	
 
 	
 
