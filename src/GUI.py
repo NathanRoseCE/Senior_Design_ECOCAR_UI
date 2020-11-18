@@ -155,7 +155,7 @@ class FrontCarTracker:
 			if distance is None:
 				text = "None in Front"
 
-			elif TopFrameHandler.alerted == True:
+			elif self.topFrame.alerted == True:
 				temp = self.label
 				self.label = Label(self.master, text = text, fg='red', compound=TOP)
 				self.label.place( relx = 0.5, rely = 0.05, anchor='c') 
