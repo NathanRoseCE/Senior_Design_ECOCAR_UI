@@ -121,13 +121,13 @@ class Lane_GUI:
 			temp = self.labelLeft
 			self.photoImageLeft = ImageTk.PhotoImage(self.imageLeft.resize((int(xPixels), int(yPixels)))) 
 			self.labelLeft = Label(self.master, image=self.photoImageLeft, bd=0) 
-			self.labelLeft.place( relx = xl, rely = yl, anchor='center')
+			self.labelLeft.place( relx = xl, rely = yl,anchor='c')
 			temp.destroy()
 			
 			temp = self.labelRight
 			self.photoImageRight = ImageTk.PhotoImage(self.imageRight.resize((int(xPixels), int(yPixels)))) 
 			self.labelRight = Label(self.master, image=self.photoImageRight, bd=0) 
-			self.labelRight.place( relx = xr, rely = yr, anchor='center')
+			self.labelRight.place( relx = xr, rely = yr, anchor='c')
 			temp.destroy()
 	#end prep
 	def hide(self):
@@ -162,19 +162,27 @@ class FrontCarTracker:
 			distance = self.distanceToFrontCar()
 			if distance is None:
 				text = "None in Front"
+				temp = self.label
+				self.label = Label(self.master, text = text)
+				self.label.place( relx = 0.5, rely = 0.05, anchor='c')
+				temp.destroy() 
+
 
 			elif self.topFrame.alerted == True:
+				text =str(distance)
 				temp = self.label
-				self.label = Label(self.master, text = text, fg='red', compound=TOP)
-				self.label.place( relx = 0.5, rely = 0.05, anchor='c') 
+				self.label = Label(self.master, text = text, fg='red')
+				self.label.place( relx = 0.5, rely = 0.05, anchor='c')
+				temp.destroy() 
 
 			else: 
 				text =str(distance)
-			#end if
-			temp = self.label
-			self.label = Label(self.master, text = text, compound=TOP)
-			self.label.place( relx = 0.5, rely = 0.05, anchor='c') 
-			temp.destroy()
+				temp = self.label
+				self.label = Label(self.master, text = text)
+				self.label.place( relx = 0.5, rely = 0.05, anchor='c') 
+				temp.destroy()
+
+			
 		#end if
 	#end update
 			
@@ -257,11 +265,14 @@ class GUI:
 	def setDarkMode(self):
 		self.darkMode = True
 		self.carFrame.config(bg="black")
+		self.master.config(bg="black")
+		root.config(bg="black")
 	#end setDarkMode
 	
 	def setLightMode(self):
 		self.darkMode = False
-		self.carFrame.config(bg="white")
+		self.carFrame.config(bg="black")
+		root.config(bg="#d9d9d9")
     #end setLightMode
     
 	def __init__(self, master):
@@ -507,7 +518,7 @@ class TopFrameHandler:
 	
 	def alert(self):
 		self.alerted = True
-		self.frame.config(bg="red")
+		#self.frame.config(bg="red")
 	#end alert
 
 	
@@ -557,7 +568,7 @@ def updateLoop(GUI):
 #end updateLoop
 if __name__ == '__main__':
 	root = Tk()
-	root.configure(bg='#d9d9d9')
+	#root.configure(bg='#d9d9d9')
 	w, h = root.winfo_screenwidth(), root.winfo_screenheight()
 	frame = Frame(root, bg="black", height=h*1, width=w*0.5)
 	frame.pack(  )
