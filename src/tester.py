@@ -49,7 +49,7 @@ class SimulateData:
     	
     def runCarChangeLane(self):
         print "Running Car changing lanes!"
-        obstacle = Obstacle(1, 0, -5, 0, 0, 1.0, 2.0, BlinkerInfo.BLINKER_INFO_OFF, ObstacleType.CAR, lanePosition = LanePosition.CENTER)
+        obstacle = Obstacle(1, 0, -5, 0, 0, 1.0, 2.0, BlinkerInfo.BLINKER_INFO_LEFT, ObstacleType.CAR, lanePosition = LanePosition.CENTER)
         self.data.obstacles[1] = obstacle
         for i in range(30):
 			obstacle.x +=0.05

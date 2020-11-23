@@ -4,9 +4,10 @@ import time
 import sys
 from Tkinter import*
 from PIL import Image, ImageTk
+import multiprocessing
 #from PIL import Image
 #from OS import *
-sys.path.append("Senior_Design_ECOCAR_UI/ROSData.py")
+#sys.path.append("Senior_Design_ECOCAR_UI/ROSData.py")
 from threading import Thread
 from ROSData import *
 from tester import SimulateData      
@@ -19,10 +20,15 @@ class Obstacle_GUI:
 		self.master= master
 		self.label = Label(self.master) 
 		self.blinking = False
-		self.blinkingThread = None
+		self.blinkerInfo = BlinkerInfo.BLINKER_INFO_UNAVAILABLE
+		self.blinkerOn = False
+		self.die = False
+		self.dead = False
+		self.__blinkingThread = Thread(target = self.__blinkBlinkers)
+		self.__blinkingThread.start()
 	#end  __init__
 	
-	def update(self, x, y, xPixels, yPixels, blinking = False):
+	def update(self, x, y, xPixels, yPixels, blinkerInfo):
 		#ensure proper image is loaded(rn its only cars)
 		if not self.hidden:
 			temp = self.label
@@ -30,9 +36,8 @@ class Obstacle_GUI:
 			self.label = Label(self.master, image=self.photoImage, bd=0) 
 			self.label.place( relx = x, rely = y, anchor='center')
 			temp.destroy()
-			if not self.blinking and blinking:
-					blinkingThread = Thread(self.blinkBlinkers)
-			#end if
+			self.blinkerInfo = blinkerInfo
+		#end if
 	#end prep
 	def hide(self):
 		self.hidden = True
@@ -45,10 +50,45 @@ class Obstacle_GUI:
 	
 	def __del__(self):
 		self.hide() #Hide, then DIE
+		self.die = True
+		print "Killing thread"
+		while not self.dead:
+			time.sleep(0.5)
+			print "IM STILL ALIVE"
 	#end __del__
 	
-	def blinkBlinkers(self):
-		pass
+	#This runs on its own thread
+	def __blinkBlinkers(self):
+		while not self.die:
+			if self.blinkerInfo == BlinkerInfo.BLINKER_INFO_LEFT:
+				if self.blinkerOn:
+					print "Left Blinker turning off"
+					self.blinkerOn = False
+				else:
+					print "Left Blinker turning On"
+					self.blinkerOn = True
+				#end if
+			elif self.blinkerInfo == BlinkerInfo.BLINKER_INFO_RIGHT:
+				if self.blinkerOn:
+					print "Right Blinker turning off"
+					self.blinkerOn = False
+				else:
+					print "Right Blinker turning On"
+					self.blinkerOn = True
+				#end if
+			elif self.blinkerInfo == BlinkerInfo.BLINKER_INFO_BOTH:
+				if self.blinkerOn:
+					print "Both Blinker turning off"
+					self.blinkerOn = False
+				else:
+					print "Both Blinker turning On"
+					self.blinkerOn = True
+				#end if
+			#end if
+			time.sleep(0.5)
+		#end while
+		self.dead = True 
+	#end __blinkBlinkers
 	
 class Lane_GUI:
 	def __init__(self, master, lanePosition, ros):
@@ -335,11 +375,12 @@ class GUI:
 				self.obstacleGUIs[obstacle] = Obstacle_GUI(self.carFrame, obstacle)
 			#end if
 			obs = self.data.obstacles[obstacle]
+			blinkerInfo = obs.blinkerInfo
 			(x, y) = self.getGUIPoint( (obs.x, obs.y), obs.lanePosition) 
 			(xRatio, yRatio) = self.relativeToGUIScale()
 			xPixels = int(obs.sizeX * xRatio)
 			yPixels = int(obs.sizeY * yRatio)
-			self.obstacleGUIs[obstacle].update(x, y, xPixels, yPixels)
+			self.obstacleGUIs[obstacle].update(x, y, xPixels, yPixels, blinkerInfo)
 		#end for
 		for dissapeared in currentlyTracked:
 			del self.obstacleGUIs[dissapeared]
