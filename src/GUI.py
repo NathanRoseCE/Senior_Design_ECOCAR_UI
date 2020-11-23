@@ -18,9 +18,11 @@ class Obstacle_GUI:
 		self.hidden=False
 		self.master= master
 		self.label = Label(self.master) 
+		self.blinking = False
+		self.blinkingThread = None
 	#end  __init__
 	
-	def update(self, x, y, xPixels, yPixels):
+	def update(self, x, y, xPixels, yPixels, blinking = False):
 		#ensure proper image is loaded(rn its only cars)
 		if not self.hidden:
 			temp = self.label
@@ -28,6 +30,9 @@ class Obstacle_GUI:
 			self.label = Label(self.master, image=self.photoImage, bd=0) 
 			self.label.place( relx = x, rely = y, anchor='center')
 			temp.destroy()
+			if not self.blinking and blinking:
+					blinkingThread = Thread(self.blinkBlinkers)
+			#end if
 	#end prep
 	def hide(self):
 		self.hidden = True
@@ -41,6 +46,9 @@ class Obstacle_GUI:
 	def __del__(self):
 		self.hide() #Hide, then DIE
 	#end __del__
+	
+	def blinkBlinkers(self):
+		pass
 	
 class Lane_GUI:
 	def __init__(self, master, lanePosition, ros):
@@ -592,7 +600,6 @@ if __name__ == '__main__':
 	test3.start()
 	
 	mainLoop = Thread( target=updateLoop, args=(gui,))
-	mainLoop.setDaemon(True)
 	mainLoop.start()
 	
 	root.mainloop()
