@@ -11,14 +11,15 @@ import multiprocessing
 from threading import Thread
 from ROSData import *
 from tester import SimulateData      
-
+DIE = False
 class Obstacle_GUI:
-	def __init__(self, master, oid):
+	def __init__(self, master, oid, obstacleType):
 		self.oid = oid
 		self.image = Image.open('../resources/Car1.png')
 		self.hidden=False
 		self.master= master
 		self.label = Label(self.master) 
+		self.obstacleType = obstacleType
 		self.blinking = False
 		self.blinkerInfo = BlinkerInfo.BLINKER_INFO_UNAVAILABLE
 		self.blinkerOn = False
@@ -39,9 +40,18 @@ class Obstacle_GUI:
 			self.blinkerInfo = blinkerInfo
 		#end if
 	#end prep
-	def hide(self):
-		self.hidden = True
-		self.label.destroy()
+	
+	def updateImage(self):
+		if self.obstacleType == CAR:
+			if blinkerOn == True:
+				if self.blinkerInfo = BlinkerInfo.BLINKER_INFO_LEFT:
+				elif self.blinkerInfo = BlinkerInfo.BLINKER_INFO_RIGHT:
+				elif self.blinkerInfo = BlinkerInfo.BLINKER_INFO_BOTH:
+				else:
+					#load default image
+			else:
+				#load default image
+		#end if
 	#end hide
 	
 	def show(self):
@@ -49,6 +59,7 @@ class Obstacle_GUI:
 	#end show
 	
 	def __del__(self):
+		print "deconstructor obstacle GUI"
 		self.hide() #Hide, then DIE
 		self.die = True
 		print "Killing thread"
@@ -59,7 +70,7 @@ class Obstacle_GUI:
 	
 	#This runs on its own thread
 	def __blinkBlinkers(self):
-		while not self.die:
+		while not (self.die or DIE):
 			if self.blinkerInfo == BlinkerInfo.BLINKER_INFO_LEFT:
 				if self.blinkerOn:
 					print "Left Blinker turning off"
@@ -326,6 +337,7 @@ class GUI:
 		self.obstacleGUIs = {}
 		self.laneGUIs = {}
 		self.updateSeeDistance()
+		self.die = False
 		
 		#set up GUI
 		master.update()
@@ -346,6 +358,12 @@ class GUI:
 		self.darkMode = False
        
 	#end __init__
+	def __del__():
+		self.die = True
+		print "deconstructor GUI"
+		for obstacleGUI in obstacleGUIs:
+			del obstacleGUIs[obstacleGUI]
+			
 	def update(self):
 		if not self.hidden:
 			self.updateECOCarImage()
@@ -372,7 +390,8 @@ class GUI:
 			if obstacle in currentlyTracked:
 				currentlyTracked.remove(obstacle)
 			else:
-				self.obstacleGUIs[obstacle] = Obstacle_GUI(self.carFrame, obstacle)
+				obstacleType = obstacleCpy[obstacle].obstacleType
+				self.obstacleGUIs[obstacle] = Obstacle_GUI(self.carFrame, obstacle, obstacleType)
 			#end if
 			obs = self.data.obstacles[obstacle]
 			blinkerInfo = obs.blinkerInfo
@@ -602,7 +621,7 @@ def videoPlay():
 	vidPlayer.stop()
 	
 def updateLoop(GUI):
-	while True:
+	while not DIE:
 		time.sleep(0.1)
 		GUI.update()
 	#end while
@@ -629,10 +648,6 @@ if __name__ == '__main__':
 	# labelTopBar.place(x=0,y=0)
 
 
-	
-
-	
-
 	#root.bind("<Left>", left)
 	#root.bind("<Right>", right)
 	#root.bind("<Up>", up)
@@ -655,4 +670,5 @@ if __name__ == '__main__':
 	mainLoop.start()
 	
 	root.mainloop()
+	DIE = True
 
