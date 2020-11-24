@@ -13,10 +13,9 @@ from ROSData import *
 from tester import SimulateData      
 DIE = False
 class Obstacle_GUI:
-	def __init__(self, master, oid, obstacleType):
+	def __init__(self, master, oid, obstacleType, darkMode = False):
+		print "Creating Obstacle"
 		self.oid = oid
-		self.image = Image.open('../resources/Car1.png')
-		self.hidden=False
 		self.master= master
 		self.label = Label(self.master) 
 		self.obstacleType = obstacleType
@@ -27,40 +26,61 @@ class Obstacle_GUI:
 		self.dead = False
 		self.__blinkingThread = Thread(target = self.__blinkBlinkers)
 		self.__blinkingThread.start()
+		self.darkMode = darkMode
+		self.filePath = ""
+		self.x = 0
+		self.y = 0
+		self.xPixels = 20
+		self.yPixels = 20
+		self.update()
 	#end  __init__
-	
-	def update(self, x, y, xPixels, yPixels, blinkerInfo):
-		#ensure proper image is loaded(rn its only cars)
-		if not self.hidden:
-			temp = self.label
-			self.photoImage = ImageTk.PhotoImage(self.image.resize((int(xPixels), int(yPixels)))) 
-			self.label = Label(self.master, image=self.photoImage, bd=0) 
-			self.label.place( relx = x, rely = y, anchor='center')
-			temp.destroy()
+	def place(self, x, y, xPixels, yPixels, blinkerInfo):
+			self.x = x
+			self.y = y
+			self.xPixels = xPixels
+			self.yPixels = yPixels
 			self.blinkerInfo = blinkerInfo
-		#end if
+			self.update()
+	#ned place
+	def update(self):
+		#ensure proper image is loaded(rn its only cars)
+		self.updateImage()
+		self.photoImage = ImageTk.PhotoImage(self.image.resize((int(self.xPixels), int(self.yPixels)))) 
+		self.label.destroy()
+		self.label = Label(self.master, image=self.photoImage, bd=0) 
+		self.label.place( relx = self.x, rely = self.y, anchor='center')
 	#end prep
 	
 	def updateImage(self):
-		if self.obstacleType == CAR:
-			if blinkerOn == True:
-				if self.blinkerInfo = BlinkerInfo.BLINKER_INFO_LEFT:
-				elif self.blinkerInfo = BlinkerInfo.BLINKER_INFO_RIGHT:
-				elif self.blinkerInfo = BlinkerInfo.BLINKER_INFO_BOTH:
-				else:
-					#load default image
+		if self.obstacleType == ObstacleType.CAR:
+			filePath = "../resources/Car1"
+			if self.blinkerOn == True:
+				if self.blinkerInfo == BlinkerInfo.BLINKER_INFO_LEFT:
+					filePath += "LightsL"
+				elif self.blinkerInfo == BlinkerInfo.BLINKER_INFO_RIGHT:
+					filePath += "LightsR"
+				elif self.blinkerInfo == BlinkerInfo.BLINKER_INFO_BOTH:
+					filePath += "LightsH"
+				#end if
+			#end if
+			print 'dark mode: ' + str(self.darkMode)
+			if not self.darkMode:
+				filePath += "L"
+				print 'light mode for obstacle'
 			else:
-				#load default image
+				print "dark mode for obstacle"
+			#end if
+			filePath += ".png"
+			if self.filePath != filePath:
+				self.filePath = filePath
+				self.image = Image.open(filePath)
+			#end if
 		#end if
 	#end hide
 	
-	def show(self):
-		self.hidden = False
-	#end show
-	
 	def __del__(self):
 		print "deconstructor obstacle GUI"
-		self.hide() #Hide, then DIE
+		self.label.destroy()
 		self.die = True
 		print "Killing thread"
 		while not self.dead:
@@ -73,26 +93,20 @@ class Obstacle_GUI:
 		while not (self.die or DIE):
 			if self.blinkerInfo == BlinkerInfo.BLINKER_INFO_LEFT:
 				if self.blinkerOn:
-					print "Left Blinker turning off"
 					self.blinkerOn = False
 				else:
-					print "Left Blinker turning On"
 					self.blinkerOn = True
 				#end if
 			elif self.blinkerInfo == BlinkerInfo.BLINKER_INFO_RIGHT:
 				if self.blinkerOn:
-					print "Right Blinker turning off"
 					self.blinkerOn = False
 				else:
-					print "Right Blinker turning On"
 					self.blinkerOn = True
 				#end if
 			elif self.blinkerInfo == BlinkerInfo.BLINKER_INFO_BOTH:
 				if self.blinkerOn:
-					print "Both Blinker turning off"
 					self.blinkerOn = False
 				else:
-					print "Both Blinker turning On"
 					self.blinkerOn = True
 				#end if
 			#end if
@@ -109,7 +123,6 @@ class Lane_GUI:
 		self.lastLoadRight = None
 		self.imageLeft = None
 		self.imageRight = None
-		self.hidden= False
 		self.master= master
 		self.labelLeft = Label(self.master)
 		self.labelRight= Label(self.master)
@@ -167,32 +180,22 @@ class Lane_GUI:
 			
 	def update(self, xl, yl, xr, yr,  xPixels, yPixels):
 		#ensure proper image is loaded(rn its only dashed yellow)
-		if not self.hidden:
-			self.loadImage()
-			temp = self.labelLeft
-			self.photoImageLeft = ImageTk.PhotoImage(self.imageLeft.resize((int(xPixels), int(yPixels)))) 
-			self.labelLeft = Label(self.master, image=self.photoImageLeft, bd=0) 
-			self.labelLeft.place( relx = xl, rely = yl,anchor='c')
-			temp.destroy()
+		self.loadImage()
+		temp = self.labelLeft
+		self.photoImageLeft = ImageTk.PhotoImage(self.imageLeft.resize((int(xPixels), int(yPixels)))) 
+		self.labelLeft = Label(self.master, image=self.photoImageLeft, bd=0) 
+		self.labelLeft.place( relx = xl, rely = yl,anchor='c')
+		temp.destroy()
 			
-			temp = self.labelRight
-			self.photoImageRight = ImageTk.PhotoImage(self.imageRight.resize((int(xPixels), int(yPixels)))) 
-			self.labelRight = Label(self.master, image=self.photoImageRight, bd=0) 
-			self.labelRight.place( relx = xr, rely = yr, anchor='c')
-			temp.destroy()
+		temp = self.labelRight
+		self.photoImageRight = ImageTk.PhotoImage(self.imageRight.resize((int(xPixels), int(yPixels)))) 
+		self.labelRight = Label(self.master, image=self.photoImageRight, bd=0) 
+		self.labelRight.place( relx = xr, rely = yr, anchor='c')
+		temp.destroy()
 	#end prep
-	def hide(self):
-		self.hidden = True
+	def __del__(self):
 		self.labelRight.destroy()
 		self.labelLeft.destroy()
-	#end hide
-	
-	def show(self):
-		self.hidden = False
-	#end show
-	
-	def __del__(self):
-		self.hide() #Hide, then DIE
 	#end __del__
 	
 class FrontCarTracker:
@@ -277,24 +280,100 @@ class FrontCarTracker:
 		
 		
 	#end checkIfAlert
-	def hide(self):
-		self.hidden = True
-		self.label.destroy()
-	#end hide
-	
-	def show(self):
-		self.hidden = False
-	#end show
 	
 	def __del__(self):
-		self.hide() #Hide, then DIE
+		self.label.destroy()
 	#end __del__
 #end FrontCarTracker
 class EcoCar:
-	def __init__(self, sizeX, sizeY):
+	def __init__(self, master, sizeX, sizeY, darkMode = False):
+		self.master = master
 		self.sizeX = sizeX
 		self.sizeY = sizeY
+		self.label = Label()
+		self.blinkerOn = False
+		self.die = False
+		self.dead = False
+		self.darkMode = darkMode
+		self.filePath = ""
+		self.place(0, 0, 20, 20, BlinkerInfo.BLINKER_INFO_OFF)
+		self.__blinkingThread = Thread(target = self.__blinkBlinkers)
+		self.__blinkingThread.start()
 	#end init
+	def place(self, x, y, xPixels, yPixels, blinkerInfo):
+			self.x = x
+			self.y = y
+			self.xPixels = xPixels
+			self.yPixels = yPixels
+			self.blinkerInfo = blinkerInfo
+			self.update()
+	#ned place
+	
+	def update(self):
+		self.updateImage()
+		self.photoImage = ImageTk.PhotoImage(self.image.resize((int(self.xPixels), int(self.yPixels)))) 
+		self.label.destroy()
+		self.label = Label(self.master, image=self.photoImage, bd=0) 
+		self.label.place( relx = self.x, rely = self.y, anchor='center')
+		
+	#end prep
+	
+	def updateImage(self):
+		filePath = "../resources/Car2"
+		if self.blinkerOn == True:
+			if self.blinkerInfo == BlinkerInfo.BLINKER_INFO_LEFT:
+				filePath += "LightsL"
+			elif self.blinkerInfo == BlinkerInfo.BLINKER_INFO_RIGHT:
+				filePath += "LightsR"
+			elif self.blinkerInfo == BlinkerInfo.BLINKER_INFO_BOTH:
+				filePath += "LightsH"
+			#end if
+		#end if
+		if not self.darkMode:
+			filePath += "L"
+		#end if
+		filePath += ".png"
+		if self.filePath != filePath:
+			self.filePath = filePath
+			self.image = Image.open(filePath)
+			print "New image loaded"
+		#end if
+	
+	def __del__(self):
+		print "deconstructor obstacle GUI"
+		self.die = True
+		print "Killing EcoCar Blinker thread"
+		while not self.dead:
+			time.sleep(0.5)
+			print "IM STILL ALIVE"
+	#end __del__
+	
+	#This runs on its own thread
+	def __blinkBlinkers(self):
+		while ( not self.die ) and (not DIE):
+			if self.blinkerInfo == BlinkerInfo.BLINKER_INFO_LEFT:
+				if self.blinkerOn:
+					self.blinkerOn = False
+				else:
+					self.blinkerOn = True
+				#end if
+			elif self.blinkerInfo == BlinkerInfo.BLINKER_INFO_RIGHT:
+				if self.blinkerOn:
+					self.blinkerOn = False
+				else:
+					self.blinkerOn = True
+				#end if
+			elif self.blinkerInfo == BlinkerInfo.BLINKER_INFO_BOTH:
+				if self.blinkerOn:
+					self.blinkerOn = False
+				else:
+					self.blinkerOn = True
+				#end if
+			#end if
+			time.sleep(0.5)
+		#end while
+		self.dead = True 
+	#end __blinkBlinkers
 #end EcoCar
 class GUI:
 
@@ -315,15 +394,27 @@ class GUI:
 	
 	def setDarkMode(self):
 		self.darkMode = True
+		self.ecoCar.darkMode = True
+		self.ecoCar.update()
 		self.carFrame.config(bg="black")
 		self.master.config(bg="black")
+		self.topFrameHandler.setDarkMode()
 		root.config(bg="black")
+		for obs in self.obstacleGUIs:
+			self.obstacleGUIs[obs].darkMode = True
+			self.obstacleGUIs[obs].update()
 	#end setDarkMode
 	
 	def setLightMode(self):
 		self.darkMode = False
+		self.ecoCar.darkMode = False
+		self.ecoCar.update()
 		self.carFrame.config(bg="#d9d9d9")
 		root.config(bg="#d9d9d9")
+		self.topFrameHandler.setLightMode()
+		for obs in self.obstacleGUIs:
+			self.obstacleGUIs[obs].darkMode = False
+			self.obstacleGUIs[obs].update()
     #end setLightMode
     
 	def __init__(self, master):
@@ -350,9 +441,7 @@ class GUI:
 		self.carFrame=Frame(master, bg="#d9d9d9", height=h*1, width=w*1.0)
 		self.carFrame.update()
 		self.carFrame.pack(side='bottom')
-		self.ecoCar = EcoCar(1, 2)
-		self.ECOCarImage = Image.open('../resources/Car2L.png')
-		self.EcoCarLabel = Label(self.carFrame, bd=0) 
+		self.ecoCar = EcoCar(self.carFrame, 1, 2)
 		self.updateECOCarImage()
 		self.frontCarTracker = FrontCarTracker(master, self.data, self.ecoCar, self.topFrameHandler)
 		self.darkMode = False
@@ -384,6 +473,7 @@ class GUI:
 	#end updateFrontCarChecker
 	
 	def updateObstacles(self):
+		print "updating obstacles"
 		currentlyTracked = self.obstacleGUIs.keys()
 		obstacleCpy = self.data.obstacles.copy()
 		for obstacle in obstacleCpy:
@@ -399,7 +489,7 @@ class GUI:
 			(xRatio, yRatio) = self.relativeToGUIScale()
 			xPixels = int(obs.sizeX * xRatio)
 			yPixels = int(obs.sizeY * yRatio)
-			self.obstacleGUIs[obstacle].update(x, y, xPixels, yPixels, blinkerInfo)
+			self.obstacleGUIs[obstacle].place(x, y, xPixels, yPixels, blinkerInfo)
 		#end for
 		for dissapeared in currentlyTracked:
 			del self.obstacleGUIs[dissapeared]
@@ -430,15 +520,11 @@ class GUI:
 	
 	def updateECOCarImage(self):
 		if not self.hidden:
-			temp = self.EcoCarLabel
 			(x, y) = self.getGUIPoint( (0,0), LanePosition.CENTER) 
 			(xRatio, yRatio) = self.relativeToGUIScale()
 			xPixels = int(self.ecoCar.sizeX * xRatio)
 			yPixels = int(self.ecoCar.sizeY * yRatio)
-			self.photoImage = ImageTk.PhotoImage(self.ECOCarImage.resize((int(xPixels), int(yPixels)))) 
-			self.EcoCarLabel = Label(self.master, image=self.photoImage, bd=0) 
-			self.EcoCarLabel.place( relx = x, rely = y, anchor='center') 
-			temp.destroy()
+			self.ecoCar.place(x, y, xPixels, yPixels, BlinkerInfo.BLINKER_INFO_OFF)
 			#self.EcoCarLabel.pack()
 	#end setupECOCarImage
 	
@@ -590,16 +676,12 @@ class TopFrameHandler:
 			
 	def setDarkMode(self):
 		self.darkMode = True
-		if not self.alerted:
-			self.carFrame.config(bg="black")
-		#end if
+		self.frame.config(bg="black")
 	#end setDarkMode
 	
 	def setLightMode(self):
 		self.darkMode = False
-		if not self.alerted:
-			self.carFrame.config(bg='red')
-		#end if
+		self.frame.config(bg='#d9d9d9')
     #end setLightMode
 #end TopFrameHandler
 def mainTest():
