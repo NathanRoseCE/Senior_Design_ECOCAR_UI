@@ -322,7 +322,7 @@ class GUI:
 	
 	def setLightMode(self):
 		self.darkMode = False
-		self.carFrame.config(bg="black")
+		self.carFrame.config(bg="#d9d9d9")
 		root.config(bg="#d9d9d9")
     #end setLightMode
     
@@ -347,11 +347,11 @@ class GUI:
 		self.topFrame.update()
 		self.topFrame.pack(side='top')
 		self.topFrameHandler = TopFrameHandler(self.topFrame, self, h*0.25, w*1.0)
-		self.carFrame=Frame(master, bg="black", height=h*1, width=w*1.0)
+		self.carFrame=Frame(master, bg="#d9d9d9", height=h*1, width=w*1.0)
 		self.carFrame.update()
 		self.carFrame.pack(side='bottom')
 		self.ecoCar = EcoCar(1, 2)
-		self.ECOCarImage = Image.open('../resources/Car2.png')
+		self.ECOCarImage = Image.open('../resources/Car2L.png')
 		self.EcoCarLabel = Label(self.carFrame, bd=0) 
 		self.updateECOCarImage()
 		self.frontCarTracker = FrontCarTracker(master, self.data, self.ecoCar, self.topFrameHandler)
