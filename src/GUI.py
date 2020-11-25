@@ -25,6 +25,7 @@ class Obstacle_GUI:
 		self.die = False
 		self.dead = False
 		self.__blinkingThread = Thread(target = self.__blinkBlinkers)
+		self.__blinkingThread.setDaemon(True)
 		self.__blinkingThread.start()
 		self.darkMode = darkMode
 		self.filePath = ""
@@ -298,6 +299,7 @@ class EcoCar:
 		self.filePath = ""
 		self.place(0, 0, 20, 20, BlinkerInfo.BLINKER_INFO_OFF)
 		self.__blinkingThread = Thread(target = self.__blinkBlinkers)
+		self.__blinkingThread.setDaemon(True)
 		self.__blinkingThread.start()
 	#end init
 	def place(self, x, y, xPixels, yPixels, blinkerInfo):
