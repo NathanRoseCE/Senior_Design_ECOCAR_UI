@@ -14,7 +14,6 @@ from tester import SimulateData
 DIE = False
 class Obstacle_GUI:
 	def __init__(self, master, oid, obstacleType, darkMode = False):
-		print "Creating Obstacle"
 		self.oid = oid
 		self.master= master
 		self.label = Label(self.master) 
@@ -64,12 +63,8 @@ class Obstacle_GUI:
 					filePath += "LightsH"
 				#end if
 			#end if
-			print 'dark mode: ' + str(self.darkMode)
 			if not self.darkMode:
 				filePath += "L"
-				print 'light mode for obstacle'
-			else:
-				print "dark mode for obstacle"
 			#end if
 			filePath += ".png"
 			if self.filePath != filePath:
@@ -78,16 +73,14 @@ class Obstacle_GUI:
 			#end if
 		#end if
 	#end hide
-	
-	def __del__(self):
-		print "deconstructor obstacle GUI"
-		self.label.destroy()
+	def cleanUp(self): # call this before del
 		self.die = True
+		self.label.destroy()
 		print "Killing thread"
 		while not self.dead:
 			time.sleep(0.5)
 			print "IM STILL ALIVE"
-	#end __del__
+	#end cleanup
 	
 	#This runs on its own thread
 	def __blinkBlinkers(self):
@@ -475,7 +468,6 @@ class GUI:
 	#end updateFrontCarChecker
 	
 	def updateObstacles(self):
-		print "updating obstacles"
 		currentlyTracked = self.obstacleGUIs.keys()
 		obstacleCpy = self.data.obstacles.copy()
 		for obstacle in obstacleCpy:
@@ -494,6 +486,7 @@ class GUI:
 			self.obstacleGUIs[obstacle].place(x, y, xPixels, yPixels, blinkerInfo)
 		#end for
 		for dissapeared in currentlyTracked:
+			self.obstacleGUIs[dissapeared].cleanUp()
 			del self.obstacleGUIs[dissapeared]
 		#end for
 	#end updateObstacles
@@ -672,7 +665,6 @@ class TopFrameHandler:
 	
 	def stopAlert(self):
 		self.alerted = False
-		self.frame.config(bg='#d9d9d9')
 	#end stopAlert
 		
 			
