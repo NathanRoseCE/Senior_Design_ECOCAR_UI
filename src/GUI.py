@@ -198,68 +198,43 @@ class FrontCarTracker:
 		self.master= master
 		self.ecoCar = ecoCar
 		self.text = StringVar()
+		self.lineLabel = Label(self.master)
+		self.image = Image.open('../resources/CarToCarInFront')
 		self.label = Label(self.master, text = "Initiliazed", compound=TOP)
 		self.label.place( relx = 0.5, rely = 0, anchor='nw') 
 		self.topFrame = topFrame
 		self.hidden = False
+		self.onScreen = False
 	#end  __init__
 	
-	def update(self):
+	def update(self, x, y, xPixels, yPixels, distance):
 		#ensure proper image is loaded(rn its only dashed yellow)
 		if not self.hidden:
-			distance = self.distanceToFrontCar()
-			if distance is None:
-				text = "None in Front"
-				temp = self.label
-				self.label = Label(self.master, text = text)
-				self.label.place( relx = 0.5, rely = 0.05, anchor='c')
-				temp.destroy() 
+			distance = distance
+			self.alert(distance)
+			
+			if (not self.onScreen) and  self.alerted:		
+				self.label = Label(self.master)
+				self.lineLabel= Label(self.master)
+			elif self.onScreen and (not self.alerted):
+				self.label.destroy()
+				self.lineLabel.destroy()
 
 
-			elif self.topFrame.alerted == True:
-				text =str(distance)
-				temp = self.label
+			if self.alerted == True:
+				self.photoImage = ImageTk.PhotoImage(self.image.resize((int(xPixels), int(yPixels)))) 
+				self.lineLabel.destroy()
+				self.lineLabel = Label(self.master, image=self.photoImage, bd=0) 
+				self.lineLabel.place( relx = x, rely = y, anchor='center')
+				
+				
+				text =str(distance) + " ft"
+				self.label.destroy()
 				self.label = Label(self.master, text = text, fg='red')
-				self.label.place( relx = 0.5, rely = 0.05, anchor='c')
-				temp.destroy() 
-
-			else: 
-				text =str(distance)
-				temp = self.label
-				self.label = Label(self.master, text = text)
-				self.label.place( relx = 0.5, rely = 0.05, anchor='c') 
-				temp.destroy()
-
+				self.label.place( relx = 0.6, rely = y, anchor='center')
 			
 		#end if
 	#end update
-			
-	def distanceToFrontCar(self):
-		carsInLane = []
-		obstacles = self.data.obstacles.copy()
-		for obstacle in obstacles:
-			if obstacles[obstacle].lanePosition == LanePosition.CENTER:
-				if obstacles[obstacle].y > 0:
-					carsInLane.append(obstacles[obstacle])
-			#end if
-		#end for
-		
-		if carsInLane == []:
-			return None
-		#end if
-		
-		closestCar = carsInLane[0]
-		for car in carsInLane:
-			if closestCar.y > car.y:
-				closestCar = car
-			#end if
-		#end for
-		
-		distance = closestCar.y - closestCar.sizeY/2 - self.ecoCar.sizeY/2
-		self.alert(distance)
-		return distance
-	#end checkCarInFront
-	
 	def alert(self, distance):
 		if distance is None:
 			return
@@ -267,9 +242,9 @@ class FrontCarTracker:
 		
 		thresholdValue = self.data.CarSpeed * 0.5
 		if distance < thresholdValue:
-			self.topFrame.alert()
+			self.alerted = True
 		else:
-			self.topFrame.stopAlert()
+			self.alerted = False
 		#end if
 		
 		
@@ -438,7 +413,7 @@ class GUI:
 		self.carFrame.pack(side='bottom')
 		self.ecoCar = EcoCar(self.carFrame, 1, 2)
 		self.updateECOCarImage()
-		self.frontCarTracker = FrontCarTracker(master, self.data, self.ecoCar, self.topFrameHandler)
+		self.frontCarTracker = FrontCarTracker(self.carFrame, self.data, self.ecoCar, self.topFrameHandler)
 		self.darkMode = False
        
 	#end __init__
@@ -464,9 +439,37 @@ class GUI:
 	#end updateSeeDistance
 	
 	def updateFrontCarChecker(self):
-		self.frontCarTracker.update()
+		distance = self.distanceToFrontCar()
+		(x, y) = self.getGUIPoint( (0, distance + self.ecoCar.sizeY/2), LanePosition.CENTER) 
+		(xRatio, yRatio) = self.relativeToGUIScale()
+		xPixels = 10
+		yPixels = int(distance * yRatio)
+		self.frontCarTracker.update(x, y, xPixels, yPixels, distance)
 	#end updateFrontCarChecker
 	
+	def distanceToFrontCar(self):
+		carsInLane = []
+		obstacles = self.data.obstacles.copy()
+		for obstacle in obstacles:
+			if obstacles[obstacle].lanePosition == LanePosition.CENTER:
+				if obstacles[obstacle].y > 0:
+					carsInLane.append(obstacles[obstacle])
+			#end if
+		#end for
+		
+		if carsInLane == []:
+			return None
+		#end if
+		
+		closestCar = carsInLane[0]
+		for car in carsInLane:
+			if closestCar.y > car.y and closestCar.y > 0:
+				closestCar = car
+			#end if
+		#end for
+		
+		distance = closestCar.y - closestCar.sizeY/2 - self.ecoCar.sizeY/2
+		return distance
 	def updateObstacles(self):
 		currentlyTracked = self.obstacleGUIs.keys()
 		obstacleCpy = self.data.obstacles.copy()
