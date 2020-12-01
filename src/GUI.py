@@ -12,6 +12,7 @@ from threading import Thread
 from ROSData import *
 from tester import SimulateData      
 DIE = False
+import gc #delete this if you see it I just used it for getting rid of a memory leak -Nathan
 class Obstacle_GUI:
 	def __init__(self, master, oid, obstacleType, darkMode = False):
 		self.oid = oid
@@ -193,25 +194,25 @@ class Lane_GUI:
 	#end __del__
 	
 class FrontCarTracker:
-	def __init__(self, master, ros, ecoCar, topFrame):
-		self.data = ros
+	def __init__(self, master, ecoCar):
 		self.master= master
 		self.ecoCar = ecoCar
 		self.text = StringVar()
 		self.lineLabel = Label(self.master)
-		self.image = Image.open('../resources/CarToCarInFront')
-		self.label = Label(self.master, text = "Initiliazed", compound=TOP)
+		self.image = Image.open('../resources/BarToCarInFront.png')
+		self.label = Label(self.master)
 		self.label.place( relx = 0.5, rely = 0, anchor='nw') 
-		self.topFrame = topFrame
 		self.hidden = False
 		self.onScreen = False
+		self.alerted = False
+		self.bg = '#d9d9d9'
 	#end  __init__
 	
-	def update(self, x, y, xPixels, yPixels, distance):
+	def update(self, x, y, xPixels, yPixels, distance, speed):
 		#ensure proper image is loaded(rn its only dashed yellow)
 		if not self.hidden:
 			distance = distance
-			self.alert(distance)
+			self.alert(distance, speed)
 			
 			if (not self.onScreen) and  self.alerted:		
 				self.label = Label(self.master)
@@ -220,27 +221,34 @@ class FrontCarTracker:
 				self.label.destroy()
 				self.lineLabel.destroy()
 
-
 			if self.alerted == True:
+				self.onScreen = True
 				self.photoImage = ImageTk.PhotoImage(self.image.resize((int(xPixels), int(yPixels)))) 
 				self.lineLabel.destroy()
+				r1 = gc.get_referrers(self.lineLabel)
+				print "Line Label: "
+				print r1
 				self.lineLabel = Label(self.master, image=self.photoImage, bd=0) 
 				self.lineLabel.place( relx = x, rely = y, anchor='center')
 				
 				
 				text =str(distance) + " ft"
 				self.label.destroy()
-				self.label = Label(self.master, text = text, fg='red')
-				self.label.place( relx = 0.6, rely = y, anchor='center')
-			
+				r1 = gc.get_referrers(self.lineLabel)
+				print "Label: "
+				print r1
+				self.label = Label(self.master, text = text, fg='red', bg = self.bg)
+				self.label.place( relx = x + 0.05, rely = y, anchor='center')
+			else:
+				self.onScreen = False
 		#end if
 	#end update
-	def alert(self, distance):
+	def alert(self, distance, speed):
 		if distance is None:
 			return
 		#end if
 		
-		thresholdValue = self.data.CarSpeed * 0.5
+		thresholdValue = speed * 0.5
 		if distance < thresholdValue:
 			self.alerted = True
 		else:
@@ -370,6 +378,7 @@ class GUI:
 		self.master.config(bg="black")
 		self.topFrameHandler.setDarkMode()
 		root.config(bg="black")
+		self.frontCarTracker.bg="black"
 		for obs in self.obstacleGUIs:
 			self.obstacleGUIs[obs].darkMode = True
 			self.obstacleGUIs[obs].update()
@@ -381,6 +390,7 @@ class GUI:
 		self.ecoCar.update()
 		self.carFrame.config(bg="#d9d9d9")
 		root.config(bg="#d9d9d9")
+		self.frontCarTracker.bg="#d9d9d9"
 		self.topFrameHandler.setLightMode()
 		for obs in self.obstacleGUIs:
 			self.obstacleGUIs[obs].darkMode = False
@@ -413,7 +423,7 @@ class GUI:
 		self.carFrame.pack(side='bottom')
 		self.ecoCar = EcoCar(self.carFrame, 1, 2)
 		self.updateECOCarImage()
-		self.frontCarTracker = FrontCarTracker(self.carFrame, self.data, self.ecoCar, self.topFrameHandler)
+		self.frontCarTracker = FrontCarTracker(self.carFrame, self.ecoCar)
 		self.darkMode = False
        
 	#end __init__
@@ -439,12 +449,19 @@ class GUI:
 	#end updateSeeDistance
 	
 	def updateFrontCarChecker(self):
-		distance = self.distanceToFrontCar()
-		(x, y) = self.getGUIPoint( (0, distance + self.ecoCar.sizeY/2), LanePosition.CENTER) 
-		(xRatio, yRatio) = self.relativeToGUIScale()
-		xPixels = 10
-		yPixels = int(distance * yRatio)
-		self.frontCarTracker.update(x, y, xPixels, yPixels, distance)
+		distance, closestCar = self.distanceToFrontCar()
+		x = None
+		y = None
+		xPixels = None
+		yPixels = None
+		if distance is not None:
+			(x, y) = self.getGUIPoint( (0, (distance + self.ecoCar.sizeY/2 + closestCar.sizeY/2)/2), LanePosition.CENTER)
+			(xRatio, yRatio) = self.relativeToGUIScale()
+			yPixels = int(distance * yRatio)
+			xPixels = int(5)
+		#end if
+		self.frontCarTracker.update(x, y, xPixels, yPixels, distance, self.data.CarSpeed)
+		del closestCar
 	#end updateFrontCarChecker
 	
 	def distanceToFrontCar(self):
@@ -458,7 +475,7 @@ class GUI:
 		#end for
 		
 		if carsInLane == []:
-			return None
+			return None, None
 		#end if
 		
 		closestCar = carsInLane[0]
@@ -469,7 +486,7 @@ class GUI:
 		#end for
 		
 		distance = closestCar.y - closestCar.sizeY/2 - self.ecoCar.sizeY/2
-		return distance
+		return (distance, closestCar)
 	def updateObstacles(self):
 		currentlyTracked = self.obstacleGUIs.keys()
 		obstacleCpy = self.data.obstacles.copy()
@@ -508,7 +525,7 @@ class GUI:
 			(xr, yr) = self.getGUIPoint( (lne.laneWidth/2, 0), lane) 
 			(xRatio, yRatio) = self.relativeToGUIScale()
 			xPixels = int(0.1 * xRatio)
-			yPixels = int(self.showYDistance * yRatio)
+			yPixels = int(self.showYDistance*2 * yRatio)
 			self.laneGUIs[lane].update(xl, yl, xr, yr, xPixels, yPixels)
 		#end for
 		for dissapeared in trackedLanes:
@@ -624,7 +641,7 @@ class GUI:
 			noRightLane = True
 		#end try
 		
-		relativeHeight = self.showYDistance
+		relativeHeight = self.showYDistance*2
 		
 		yRatio = h/relativeHeight
 		
@@ -638,7 +655,6 @@ class GUI:
 class TopFrameHandler:
 	def __init__(self, frame, GUI, height, width):
 		self.frame = frame
-		self.alerted = False
 		self.darkMode = False
 		self.gui = GUI
 		#self.frame.grid(row=1, column=3, sticky='nsew')
@@ -659,16 +675,6 @@ class TopFrameHandler:
 		self.vidButton.place(relx=.666666, rely=.5, anchor="c")
 		#self.button.pack()
 	#end __init__
-	
-	def alert(self):
-		self.alerted = True
-		#self.frame.config(bg="red")
-	#end alert
-
-	
-	def stopAlert(self):
-		self.alerted = False
-	#end stopAlert
 		
 			
 	def setDarkMode(self):
