@@ -12,7 +12,8 @@ from threading import Thread
 from ROSData import *
 from tester import SimulateData      
 DIE = False
-import gc #delete this if you see it I just used it for getting rid of a memory leak -Nathan
+from enum import Enum
+
 class Obstacle_GUI:
 	def __init__(self, master, oid, obstacleType, darkMode = False):
 		self.oid = oid
@@ -193,19 +194,24 @@ class Lane_GUI:
 		self.labelLeft.destroy()
 	#end __del__
 	
+class AlertLevel(Enum):
+	CLOSE=0
+	MID=1
+	NONE=2
 class FrontCarTracker:
 	def __init__(self, master, ecoCar):
 		self.master= master
 		self.ecoCar = ecoCar
 		self.text = StringVar()
 		self.lineLabel = Label(self.master)
-		self.image = Image.open('../resources/BarToCarInFront.png')
+		self.image = Image.open('../resources/BarToCarInFrontClose.png')
 		self.label = Label(self.master)
 		self.label.place( relx = 0.5, rely = 0, anchor='nw') 
 		self.hidden = False
 		self.onScreen = False
-		self.alerted = False
+		self.alertLevel = AlertLevel.NONE
 		self.bg = '#d9d9d9'
+		self.textColor = "red"
 	#end  __init__
 	
 	def update(self, x, y, xPixels, yPixels, distance, speed):
@@ -213,31 +219,24 @@ class FrontCarTracker:
 		if not self.hidden:
 			distance = distance
 			self.alert(distance, speed)
-			
-			if (not self.onScreen) and  self.alerted:		
+			if (not self.onScreen) and (self.alertLevel != AlertLevel.NONE):		
 				self.label = Label(self.master)
 				self.lineLabel= Label(self.master)
-			elif self.onScreen and (not self.alerted):
+				self.onScreen = True
+			elif self.onScreen and ( self.alertLevel == AlertLevel.NONE):
 				self.label.destroy()
 				self.lineLabel.destroy()
 
-			if self.alerted == True:
-				self.onScreen = True
+			if self.alertLevel != AlertLevel.NONE:
 				self.photoImage = ImageTk.PhotoImage(self.image.resize((int(xPixels), int(yPixels)))) 
 				self.lineLabel.destroy()
-				r1 = gc.get_referrers(self.lineLabel)
-				print "Line Label: "
-				print r1
 				self.lineLabel = Label(self.master, image=self.photoImage, bd=0) 
 				self.lineLabel.place( relx = x, rely = y, anchor='center')
 				
 				
 				text =str(distance) + " ft"
 				self.label.destroy()
-				r1 = gc.get_referrers(self.lineLabel)
-				print "Label: "
-				print r1
-				self.label = Label(self.master, text = text, fg='red', bg = self.bg)
+				self.label = Label(self.master, text = text, fg=self.textColor, bg = self.bg)
 				self.label.place( relx = x + 0.05, rely = y, anchor='center')
 			else:
 				self.onScreen = False
@@ -248,13 +247,27 @@ class FrontCarTracker:
 			return
 		#end if
 		
-		thresholdValue = speed * 0.5
-		if distance < thresholdValue:
-			self.alerted = True
+		closeThreshold = speed * 0.2
+		midthresholdValue = speed * 0.5
+		newAlertLevel = self.alertLevel
+		if distance < closeThreshold:
+			newAlertLevel = AlertLevel.CLOSE
+		elif distance < midthresholdValue:
+			newAlertLevel = AlertLevel.MID
 		else:
-			self.alerted = False
+			newAlertLevel = AlertLevel.NONE
 		#end if
 		
+		if self.alertLevel != newAlertLevel:
+			self.alertLevel = newAlertLevel
+			if self.alertLevel == AlertLevel.MID:
+				self.image = Image.open('../resources/BarToCarInFrontMid.png')
+				self.textColor="Orange"
+			elif self.alertLevel == AlertLevel.CLOSE:
+				self.image = Image.open('../resources/BarToCarInFrontClose.png')
+				self.textColor="Red"
+			#end if
+		#end if
 		
 	#end checkIfAlert
 	
