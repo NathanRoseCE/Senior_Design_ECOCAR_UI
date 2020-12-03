@@ -247,12 +247,14 @@ class FrontCarTracker:
 			return
 		#end if
 		
-		closeThreshold = speed * 0.2
-		midthresholdValue = speed * 0.5
+		#convert distance to distance in seconds(assumes speed is MPH)
+		distanceS = distance / (speed * 5280/3600)
+		closeThreshold = 1.0 #less than on second
+		midthresholdValue = 2.0 #less than two seconds
 		newAlertLevel = self.alertLevel
-		if distance < closeThreshold:
+		if distanceS < closeThreshold:
 			newAlertLevel = AlertLevel.CLOSE
-		elif distance < midthresholdValue:
+		elif distanceS < midthresholdValue:
 			newAlertLevel = AlertLevel.MID
 		else:
 			newAlertLevel = AlertLevel.NONE
@@ -434,7 +436,7 @@ class GUI:
 		self.carFrame=Frame(master, bg="#d9d9d9", height=h*1, width=w*1.0)
 		self.carFrame.update()
 		self.carFrame.pack(side='bottom')
-		self.ecoCar = EcoCar(self.carFrame, 1, 2)
+		self.ecoCar = EcoCar(self.carFrame, 6, 15)
 		self.updateECOCarImage()
 		self.frontCarTracker = FrontCarTracker(self.carFrame, self.ecoCar)
 		self.darkMode = False
@@ -458,7 +460,7 @@ class GUI:
 	
 	def updateSeeDistance(self):
 		speed = self.data.CarSpeed
-		self.showYDistance = (speed * 0.5) + 10
+		self.showYDistance = (speed * 2) + 30
 	#end updateSeeDistance
 	
 	def updateFrontCarChecker(self):
@@ -537,7 +539,7 @@ class GUI:
 			(xl, yl) = self.getGUIPoint( (-lne.laneWidth/2, 0), lane) 
 			(xr, yr) = self.getGUIPoint( (lne.laneWidth/2, 0), lane) 
 			(xRatio, yRatio) = self.relativeToGUIScale()
-			xPixels = int(0.1 * xRatio)
+			xPixels = int(0.5* xRatio)
 			yPixels = int(self.showYDistance*2 * yRatio)
 			self.laneGUIs[lane].update(xl, yl, xr, yr, xPixels, yPixels)
 		#end for
