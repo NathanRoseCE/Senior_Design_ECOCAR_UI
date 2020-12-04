@@ -5,15 +5,14 @@ import time
 class SimulateData:
     def __init__(self):
         self.data = ROSData()
-        self.setupLanes()
         self.data.CarSpeed = 0
     #end __init__
     
     def runCarPassing(self):
-        obstacle = Obstacle(0, 0, -10, 0, 0, 6.0, 15.0, BlinkerInfo.BLINKER_INFO_OFF, ObstacleType.CAR, lanePosition = LanePosition.LEFT)
+        obstacle = Obstacle(0, 0, -50, 0, 0, 6.0, 15.0, BlinkerInfo.BLINKER_INFO_OFF, ObstacleType.CAR, lanePosition = LanePosition.LEFT)
         self.data.obstacles[0] = obstacle
-        while obstacle.y < 15:
-            obstacle.y += 0.1
+        while obstacle.y < 50:
+            obstacle.y += 0.4
             time.sleep(0.1)
         #end for
         del self.data.obstacles[0]
@@ -25,13 +24,14 @@ class SimulateData:
 			time.sleep(0.1)
     	#end while    
     #end speedUpEcoCARs
-    def setupLanes(self):
+    def setupThreeLanes(self):
         leftLane = Lane(LaneType.LANE_TYPE_DASHED, LaneType.LANE_TYPE_SOLID, LanePosition.LEFT, 10)
         centerLane = Lane(LaneType.LANE_TYPE_DASHED, LaneType.LANE_TYPE_DASHED, LanePosition.CENTER, 10)
         rightLane = Lane(LaneType.LANE_TYPE_SOLID, LaneType.LANE_TYPE_DASHED, LanePosition.RIGHT, 10)
         self.data.lanes[LanePosition.LEFT] = leftLane
         self.data.lanes[LanePosition.CENTER] = centerLane
         self.data.lanes[LanePosition.RIGHT] = rightLane
+        print "Three lanes set up"
     #end setupLanes
       
     def setupTwoLanes(self):
@@ -49,7 +49,7 @@ class SimulateData:
     	
     def runCarChangeLane(self):
         print "Running Car changing lanes!"
-        obstacle = Obstacle(1, 0, -50, 0, 0, 6.0, 15.0, BlinkerInfo.BLINKER_INFO_RIGHT, ObstacleType.CAR, lanePosition = LanePosition.CENTER)
+        obstacle = Obstacle(1, 0, -50, 0, 0, 6.0, 15.0, BlinkerInfo.BLINKER_INFO_RIGHT, ObstacleType.TRUCK, lanePosition = LanePosition.CENTER)
         self.data.obstacles[1] = obstacle
         forwardSpeed = 0.25
         sidespeed = 0.2
@@ -65,7 +65,7 @@ class SimulateData:
         #end for
         obstacle.lanePosition = LanePosition.RIGHT
         obstacle.x = -self.data.lanes[LanePosition.RIGHT].laneWidth/2
-        
+        obstacle.blinkerInfo = BlinkerInfo.BLINKER_INFO_OFF
         while obstacle.x < 0:
 			obstacle.x +=forwardSpeed
 			obstacle.y +=sidespeed
@@ -76,6 +76,7 @@ class SimulateData:
 			obstacle.y +=forwardSpeed
 			time.sleep(0.1)
 			
+        obstacle.blinkerInfo = BlinkerInfo.BLINKER_INFO_LEFT
         while obstacle.x > -self.data.lanes[LanePosition.CENTER].laneWidth/2:
 			obstacle.x -=sidespeed
 			obstacle.y +=forwardSpeed

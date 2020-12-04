@@ -18,7 +18,7 @@ class Obstacle_GUI:
 	def __init__(self, master, oid, obstacleType, darkMode = False):
 		self.oid = oid
 		self.master= master
-		self.label = Label(self.master) 
+		self.label = Label(self.master, bd=0) 
 		self.obstacleType = obstacleType
 		self.blinking = False
 		self.blinkerInfo = BlinkerInfo.BLINKER_INFO_UNAVAILABLE
@@ -56,6 +56,13 @@ class Obstacle_GUI:
 	def updateImage(self):
 		if self.obstacleType == ObstacleType.CAR:
 			filePath = "../resources/Car1"
+		elif self.obstacleType == ObstacleType.TRUCK:
+			filePath = "../resources/Truck"
+		elif self.obstacleType == ObstacleType.PEDESTRIAN:
+			filePath = "../resources/pedestrian"
+		#end if
+		
+		if self.obstacleType == ObstacleType.CAR or self.obstacleType == ObstacleType.TRUCK:
 			if self.blinkerOn == True:
 				if self.blinkerInfo == BlinkerInfo.BLINKER_INFO_LEFT:
 					filePath += "LightsL"
@@ -65,15 +72,16 @@ class Obstacle_GUI:
 					filePath += "LightsH"
 				#end if
 			#end if
-			if not self.darkMode:
-				filePath += "L"
-			#end if
-			filePath += ".png"
-			if self.filePath != filePath:
-				self.filePath = filePath
-				self.image = Image.open(filePath)
-			#end if
 		#end if
+		if not self.darkMode:
+			filePath += "L"
+		#end if
+		filePath += ".png"
+		if self.filePath != filePath:
+			self.filePath = filePath
+			self.image = Image.open(filePath)
+		#end if
+			
 	#end hide
 	def cleanUp(self): # call this before del
 		self.die = True
@@ -177,17 +185,17 @@ class Lane_GUI:
 	def update(self, xl, yl, xr, yr,  xPixels, yPixels):
 		#ensure proper image is loaded(rn its only dashed yellow)
 		self.loadImage()
-		temp = self.labelLeft
-		self.photoImageLeft = ImageTk.PhotoImage(self.imageLeft.resize((int(xPixels), int(yPixels)))) 
+		self.photoImageLeft = ImageTk.PhotoImage(self.imageLeft.resize((int(xPixels), int(yPixels))))
+		self.labelLeft.destroy() 
 		self.labelLeft = Label(self.master, image=self.photoImageLeft, bd=0) 
 		self.labelLeft.place( relx = xl, rely = yl,anchor='c')
-		temp.destroy()
 			
-		temp = self.labelRight
+		
 		self.photoImageRight = ImageTk.PhotoImage(self.imageRight.resize((int(xPixels), int(yPixels)))) 
+		self.labelRight.destroy()
 		self.labelRight = Label(self.master, image=self.photoImageRight, bd=0) 
 		self.labelRight.place( relx = xr, rely = yr, anchor='c')
-		temp.destroy()
+
 	#end prep
 	def __del__(self):
 		self.labelRight.destroy()
@@ -333,7 +341,6 @@ class EcoCar:
 		#end if
 	
 	def __del__(self):
-		print "deconstructor obstacle GUI"
 		self.die = True
 		print "Killing EcoCar Blinker thread"
 		while not self.dead:
@@ -509,6 +516,7 @@ class GUI:
 			if obstacle in currentlyTracked:
 				currentlyTracked.remove(obstacle)
 			else:
+				print "New obstacle: " + str(obstacle)
 				obstacleType = obstacleCpy[obstacle].obstacleType
 				self.obstacleGUIs[obstacle] = Obstacle_GUI(self.carFrame, obstacle, obstacleType)
 			#end if
@@ -677,29 +685,39 @@ class TopFrameHandler:
 		#self.frame.grid_columnconfigure(0, minsize=100, weight=1)
 		self.frame.pack(fill=None, expand=False)
 
-		self.photoDarkMode = Image.open('../resources/darkmodeIObutt.png')
-		self.photoDarkMode = self.photoDarkMode.resize((150,60), Image.ANTIALIAS)
-		self.photoDarkModeImg = ImageTk.PhotoImage(self.photoDarkMode)
-		self.button = Button(self.frame, image=self.photoDarkModeImg, command = self.gui.toggleLightMode, bd=0)
-		self.button.place(relx=.333333, rely=.5, anchor="c")
-		
-		self.photo = Image.open('../resources/button1Test.png')
-		self.photo = self.photo.resize((150,60), Image.ANTIALIAS)
-		self.photoImg =  ImageTk.PhotoImage(self.photo)
-		self.vidButton = Button(self.frame, image=self.photoImg, command=videoPlay, bd=0)
-		self.vidButton.place(relx=.666666, rely=.5, anchor="c")
-		#self.button.pack()
+		self.photoDarkMode = Image.open('../resources/buttonDarkModeL.png')
+		self.photo = Image.open('../resources/buttonPlayVideoL.png')
+		self.bg='#d9d9d9'
+		self.update()
 	#end __init__
 		
 			
+	def update(self):
+		self.frame.config(bg=self.bg)
+		self.photoDarkMode = self.photoDarkMode.resize((150,60), Image.ANTIALIAS)
+		self.photoDarkModeImg = ImageTk.PhotoImage(self.photoDarkMode)
+		self.button = Button(self.frame, image=self.photoDarkModeImg, command = self.gui.toggleLightMode, bd=0, bg = self.bg, highlightthickness=0)
+		self.button.place(relx=.333333, rely=.5, anchor="c")
+		
+		self.photo = self.photo.resize((150,60), Image.ANTIALIAS)
+		self.photoImg =  ImageTk.PhotoImage(self.photo)
+		self.vidButton = Button(self.frame, image=self.photoImg, command=videoPlay, bd=0, bg=self.bg)
+		self.vidButton.place(relx=.666666, rely=.5, anchor="c")
+		
 	def setDarkMode(self):
+		self.photoDarkMode = Image.open('../resources/buttonDarkMode.png')
+		self.photo = Image.open('../resources/buttonPlayVideo.png')
+		self.bg='black'
 		self.darkMode = True
-		self.frame.config(bg="black")
+		self.update()
 	#end setDarkMode
 	
 	def setLightMode(self):
+		self.photoDarkMode = Image.open('../resources/buttonDarkModeL.png')
+		self.photo = Image.open('../resources/buttonPlayVideoL.png')
+		self.bg='#d9d9d9'
 		self.darkMode = False
-		self.frame.config(bg='#d9d9d9')
+		self.update()
     #end setLightMode
 #end TopFrameHandler
 def mainTest():
@@ -734,33 +752,19 @@ if __name__ == '__main__':
 	frame.pack(  )
 	root.geometry("%dx%d+0+0" % (w, h))
 	simulator = SimulateData()
+	simulator.setupThreeLanes()
 	gui = GUI(frame)
 	
-	#photo = PhotoImage(file = r'../resources/button1Test.png')
 	
-
-
-
-	# topbarimg = Image.open('../resources/topBar2.png')
-	# topbarimg = topbarimg.resize((2000,75),Image.ANTIALIAS)
-	# topb = ImageTk.PhotoImage(topbarimg)
-	# labelTopBar = Label(root, image=topb, compound=BOTTOM)
-	# labelTopBar.place(x=0,y=0)
-
-
-	#root.bind("<Left>", left)
-	#root.bind("<Right>", right)
-	#root.bind("<Up>", up)
-	#root.bind("<Down>", down)
-	test = Thread( target=simulator.twoLaneTest)
+	# test = Thread( target=simulator.twoLaneTest)
+	# test.setDaemon(True)
+	# test.start()
+	test = Thread( target=simulator.runCarPassing)
 	test.setDaemon(True)
 	test.start()
-	#test = Thread( target=simulator.runCarPassing)
-	#test.setDaemon(True)
-	#test.start()
-	#test2 = Thread( target=simulator.runCarChangeLane)
-	#test2.setDaemon(True)
-	#test2.start()
+	test2 = Thread( target=simulator.runCarChangeLane)
+	test2.setDaemon(True)
+	test2.start()
 	
 	test3 = Thread(target=simulator.speedUpEcoCAR)
 	test3.setDaemon(True)
