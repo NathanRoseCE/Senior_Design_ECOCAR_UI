@@ -701,7 +701,7 @@ class TopFrameHandler:
 		
 		self.photo = self.photo.resize((150,60), Image.ANTIALIAS)
 		self.photoImg =  ImageTk.PhotoImage(self.photo)
-		self.vidButton = Button(self.frame, image=self.photoImg, command=videoPlay, bd=0, bg=self.bg)
+		self.vidButton = Button(self.frame, image=self.photoImg, command=videoPlay, bd=0, bg=self.bg, highlightthickness=0)
 		self.vidButton.place(relx=.666666, rely=.5, anchor="c")
 		
 	def setDarkMode(self):
