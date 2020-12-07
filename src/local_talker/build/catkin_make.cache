@@ -1,0 +1,2 @@
+erau_fusion_msgs
+-DCATKIN_DEVEL_PREFIX=/home/sabrinayepez/local_talker/devel -DCMAKE_INSTALL_PREFIX=/home/sabrinayepez/local_talker/install -G Unix Makefiles

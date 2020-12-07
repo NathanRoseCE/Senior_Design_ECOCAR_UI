@@ -1,0 +1,19 @@
+(cl:defpackage erau_fusion_msgs-msg
+  (:use )
+  (:export
+   "<CANBUS>"
+   "CANBUS"
+   "<TRACKED_LANE>"
+   "TRACKED_LANE"
+   "<TRACKED_LANE_OBJECT>"
+   "TRACKED_LANE_OBJECT"
+   "<TRACKED_VEH_OBJECT>"
+   "TRACKED_VEH_OBJECT"
+   "<TRACKED_VEHICLES>"
+   "TRACKED_VEHICLES"
+   "<UNFUSED_VEHICLES>"
+   "UNFUSED_VEHICLES"
+   "<VEH_OBJECT>"
+   "VEH_OBJECT"
+  ))
+

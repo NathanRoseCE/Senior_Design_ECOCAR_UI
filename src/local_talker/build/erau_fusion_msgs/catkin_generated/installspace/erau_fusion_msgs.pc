@@ -1,0 +1,8 @@
+prefix=/home/sabrinayepez/local_talker/install
+
+Name: erau_fusion_msgs
+Description: Description of erau_fusion_msgs
+Version: 0.0.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: roscpp rospy std_msgs message_runtime
