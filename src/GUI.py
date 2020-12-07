@@ -18,7 +18,8 @@ class Obstacle_GUI:
 	def __init__(self, master, oid, obstacleType, darkMode = False):
 		self.oid = oid
 		self.master= master
-		self.label = Label(self.master) 
+		self.label = Label(self.master, bd=0) 
+		self.labelTwo = Label(self.master, bd=0)
 		self.obstacleType = obstacleType
 		self.blinking = False
 		self.blinkerInfo = BlinkerInfo.BLINKER_INFO_UNAVAILABLE
@@ -51,11 +52,22 @@ class Obstacle_GUI:
 		self.label.destroy()
 		self.label = Label(self.master, image=self.photoImage, bd=0) 
 		self.label.place( relx = self.x, rely = self.y, anchor='center')
+		
+		self.labelTwo.destroy()
+		self.labelTwo = Label(self.master, image=self.photoImage, bd=0) 
+		self.labelTwo.place( relx = self.x, rely = self.y, anchor='center')
 	#end prep
 	
 	def updateImage(self):
 		if self.obstacleType == ObstacleType.CAR:
 			filePath = "../resources/Car1"
+		elif self.obstacleType == ObstacleType.TRUCK:
+			filePath = "../resources/Truck"
+		elif self.obstacleType == ObstacleType.PEDESTRIAN:
+			filePath = "../resources/pedestrian"
+		#end if
+		
+		if self.obstacleType == ObstacleType.CAR or self.obstacleType == ObstacleType.TRUCK:
 			if self.blinkerOn == True:
 				if self.blinkerInfo == BlinkerInfo.BLINKER_INFO_LEFT:
 					filePath += "LightsL"
@@ -65,19 +77,21 @@ class Obstacle_GUI:
 					filePath += "LightsH"
 				#end if
 			#end if
-			if not self.darkMode:
-				filePath += "L"
-			#end if
-			filePath += ".png"
-			if self.filePath != filePath:
-				self.filePath = filePath
-				self.image = Image.open(filePath)
-			#end if
 		#end if
+		if not self.darkMode:
+			filePath += "L"
+		#end if
+		filePath += ".png"
+		if self.filePath != filePath:
+			self.filePath = filePath
+			self.image = Image.open(filePath)
+		#end if
+			
 	#end hide
 	def cleanUp(self): # call this before del
 		self.die = True
 		self.label.destroy()
+		self.labelTwo.destroy()
 		print "Killing thread"
 		while not self.dead:
 			time.sleep(0.5)
@@ -177,17 +191,17 @@ class Lane_GUI:
 	def update(self, xl, yl, xr, yr,  xPixels, yPixels):
 		#ensure proper image is loaded(rn its only dashed yellow)
 		self.loadImage()
-		temp = self.labelLeft
-		self.photoImageLeft = ImageTk.PhotoImage(self.imageLeft.resize((int(xPixels), int(yPixels)))) 
+		self.photoImageLeft = ImageTk.PhotoImage(self.imageLeft.resize((int(xPixels), int(yPixels))))
+		self.labelLeft.destroy() 
 		self.labelLeft = Label(self.master, image=self.photoImageLeft, bd=0) 
 		self.labelLeft.place( relx = xl, rely = yl,anchor='c')
-		temp.destroy()
 			
-		temp = self.labelRight
+		
 		self.photoImageRight = ImageTk.PhotoImage(self.imageRight.resize((int(xPixels), int(yPixels)))) 
+		self.labelRight.destroy()
 		self.labelRight = Label(self.master, image=self.photoImageRight, bd=0) 
 		self.labelRight.place( relx = xr, rely = yr, anchor='c')
-		temp.destroy()
+
 	#end prep
 	def __del__(self):
 		self.labelRight.destroy()
@@ -215,31 +229,36 @@ class FrontCarTracker:
 	#end  __init__
 	
 	def update(self, x, y, xPixels, yPixels, distance, speed):
-		#ensure proper image is loaded(rn its only dashed yellow)
 		if not self.hidden:
-			distance = distance
 			self.alert(distance, speed)
-			if (not self.onScreen) and (self.alertLevel != AlertLevel.NONE):		
-				self.label = Label(self.master)
-				self.lineLabel= Label(self.master)
-				self.onScreen = True
-			elif self.onScreen and ( self.alertLevel == AlertLevel.NONE):
-				self.label.destroy()
-				self.lineLabel.destroy()
+			if distance > 0:
+				if (not self.onScreen) and (self.alertLevel != AlertLevel.NONE):		
+					self.label = Label(self.master)
+					self.lineLabel= Label(self.master)
+					self.onScreen = True
+				elif self.onScreen and ( self.alertLevel == AlertLevel.NONE):
+					self.label.destroy()
+					self.lineLabel.destroy()
+				#end if
 
-			if self.alertLevel != AlertLevel.NONE:
-				self.photoImage = ImageTk.PhotoImage(self.image.resize((int(xPixels), int(yPixels)))) 
-				self.lineLabel.destroy()
-				self.lineLabel = Label(self.master, image=self.photoImage, bd=0) 
-				self.lineLabel.place( relx = x, rely = y, anchor='center')
-				
-				
-				text =str(distance) + " ft"
-				self.label.destroy()
-				self.label = Label(self.master, text = text, fg=self.textColor, bg = self.bg)
-				self.label.place( relx = x + 0.05, rely = y, anchor='center')
+				if self.alertLevel != AlertLevel.NONE:
+					self.photoImage = ImageTk.PhotoImage(self.image.resize((int(xPixels), int(yPixels)))) 
+					self.lineLabel.destroy()
+					self.lineLabel = Label(self.master, image=self.photoImage, bd=0) 
+					self.lineLabel.place( relx = x, rely = y, anchor='center')
+					
+					
+					text =str(distance) + " ft"
+					self.label.destroy()
+					self.label = Label(self.master, text = text, fg=self.textColor, bg = self.bg)
+					self.label.place( relx = x + 0.05, rely = y, anchor='center')
+				else:
+					self.onScreen = False
+				#end if
 			else:
-				self.onScreen = False
+				if distance is not None:
+					print "You sir, are in a wreck"
+			#end if
 		#end if
 	#end update
 	def alert(self, distance, speed):
@@ -247,12 +266,17 @@ class FrontCarTracker:
 			return
 		#end if
 		
-		closeThreshold = speed * 0.2
-		midthresholdValue = speed * 0.5
+		#convert distance to distance in seconds(assumes speed is MPH)
+		distanceS = distance
+		if speed != 0:
+			distanceS = distance / (speed * 5280/3600)
+		#end if
+		closeThreshold = 1.0 #less than on second
+		midthresholdValue = 2.0 #less than two seconds
 		newAlertLevel = self.alertLevel
-		if distance < closeThreshold:
+		if distanceS < closeThreshold:
 			newAlertLevel = AlertLevel.CLOSE
-		elif distance < midthresholdValue:
+		elif distanceS < midthresholdValue:
 			newAlertLevel = AlertLevel.MID
 		else:
 			newAlertLevel = AlertLevel.NONE
@@ -281,6 +305,7 @@ class EcoCar:
 		self.sizeX = sizeX
 		self.sizeY = sizeY
 		self.label = Label()
+		self.labelTwo = Label()
 		self.blinkerOn = False
 		self.die = False
 		self.dead = False
@@ -307,6 +332,9 @@ class EcoCar:
 		self.label = Label(self.master, image=self.photoImage, bd=0) 
 		self.label.place( relx = self.x, rely = self.y, anchor='center')
 		
+		self.labelTwo.destroy()
+		self.labelTwo = Label(self.master, image=self.photoImage, bd=0) 
+		self.labelTwo.place( relx = self.x, rely = self.y, anchor='center')
 	#end prep
 	
 	def updateImage(self):
@@ -331,7 +359,6 @@ class EcoCar:
 		#end if
 	
 	def __del__(self):
-		print "deconstructor obstacle GUI"
 		self.die = True
 		print "Killing EcoCar Blinker thread"
 		while not self.dead:
@@ -434,7 +461,7 @@ class GUI:
 		self.carFrame=Frame(master, bg="#d9d9d9", height=h*1, width=w*1.0)
 		self.carFrame.update()
 		self.carFrame.pack(side='bottom')
-		self.ecoCar = EcoCar(self.carFrame, 1, 2)
+		self.ecoCar = EcoCar(self.carFrame, 6, 15)
 		self.updateECOCarImage()
 		self.frontCarTracker = FrontCarTracker(self.carFrame, self.ecoCar)
 		self.darkMode = False
@@ -458,7 +485,7 @@ class GUI:
 	
 	def updateSeeDistance(self):
 		speed = self.data.CarSpeed
-		self.showYDistance = (speed * 0.5) + 10
+		self.showYDistance = (speed * 2) + 30
 	#end updateSeeDistance
 	
 	def updateFrontCarChecker(self):
@@ -491,13 +518,17 @@ class GUI:
 			return None, None
 		#end if
 		
+		foundInFront = False
 		closestCar = carsInLane[0]
 		for car in carsInLane:
-			if closestCar.y > car.y and closestCar.y > 0:
+			if closestCar.y > car.y and car.y > 0:
 				closestCar = car
+				foundInFront = True
 			#end if
 		#end for
-		
+		if not foundInFront:
+			return None, None
+		# end if
 		distance = closestCar.y - closestCar.sizeY/2 - self.ecoCar.sizeY/2
 		return (distance, closestCar)
 	def updateObstacles(self):
@@ -507,8 +538,9 @@ class GUI:
 			if obstacle in currentlyTracked:
 				currentlyTracked.remove(obstacle)
 			else:
+				print "New obstacle: " + str(obstacle)
 				obstacleType = obstacleCpy[obstacle].obstacleType
-				self.obstacleGUIs[obstacle] = Obstacle_GUI(self.carFrame, obstacle, obstacleType)
+				self.obstacleGUIs[obstacle] = Obstacle_GUI(self.carFrame, obstacle, obstacleType, self.darkMode)
 			#end if
 			obs = self.data.obstacles[obstacle]
 			blinkerInfo = obs.blinkerInfo
@@ -537,7 +569,7 @@ class GUI:
 			(xl, yl) = self.getGUIPoint( (-lne.laneWidth/2, 0), lane) 
 			(xr, yr) = self.getGUIPoint( (lne.laneWidth/2, 0), lane) 
 			(xRatio, yRatio) = self.relativeToGUIScale()
-			xPixels = int(0.1 * xRatio)
+			xPixels = int(0.5* xRatio)
 			yPixels = int(self.showYDistance*2 * yRatio)
 			self.laneGUIs[lane].update(xl, yl, xr, yr, xPixels, yPixels)
 		#end for
@@ -675,29 +707,39 @@ class TopFrameHandler:
 		#self.frame.grid_columnconfigure(0, minsize=100, weight=1)
 		self.frame.pack(fill=None, expand=False)
 
-		self.photoDarkMode = Image.open('../resources/darkmodeIObutt.png')
-		self.photoDarkMode = self.photoDarkMode.resize((150,60), Image.ANTIALIAS)
-		self.photoDarkModeImg = ImageTk.PhotoImage(self.photoDarkMode)
-		self.button = Button(self.frame, image=self.photoDarkModeImg, command = self.gui.toggleLightMode, bd=0)
-		self.button.place(relx=.333333, rely=.5, anchor="c")
-		
-		self.photo = Image.open('../resources/button1Test.png')
-		self.photo = self.photo.resize((150,60), Image.ANTIALIAS)
-		self.photoImg =  ImageTk.PhotoImage(self.photo)
-		self.vidButton = Button(self.frame, image=self.photoImg, command=videoPlay, bd=0)
-		self.vidButton.place(relx=.666666, rely=.5, anchor="c")
-		#self.button.pack()
+		self.photoDarkMode = Image.open('../resources/buttonDarkModeL.png')
+		self.photo = Image.open('../resources/buttonPlayVideoL.png')
+		self.bg='#d9d9d9'
+		self.update()
 	#end __init__
 		
 			
+	def update(self):
+		self.frame.config(bg=self.bg)
+		self.photoDarkMode = self.photoDarkMode.resize((150,60), Image.ANTIALIAS)
+		self.photoDarkModeImg = ImageTk.PhotoImage(self.photoDarkMode)
+		self.button = Button(self.frame, image=self.photoDarkModeImg, command = self.gui.toggleLightMode, bd=0, bg = self.bg, highlightthickness=0)
+		self.button.place(relx=.333333, rely=.5, anchor="c")
+		
+		self.photo = self.photo.resize((150,60), Image.ANTIALIAS)
+		self.photoImg =  ImageTk.PhotoImage(self.photo)
+		self.vidButton = Button(self.frame, image=self.photoImg, command=videoPlay, bd=0, bg=self.bg, highlightthickness=0)
+		self.vidButton.place(relx=.666666, rely=.5, anchor="c")
+		
 	def setDarkMode(self):
+		self.photoDarkMode = Image.open('../resources/buttonDarkMode.png')
+		self.photo = Image.open('../resources/buttonPlayVideo.png')
+		self.bg='black'
 		self.darkMode = True
-		self.frame.config(bg="black")
+		self.update()
 	#end setDarkMode
 	
 	def setLightMode(self):
+		self.photoDarkMode = Image.open('../resources/buttonDarkModeL.png')
+		self.photo = Image.open('../resources/buttonPlayVideoL.png')
+		self.bg='#d9d9d9'
 		self.darkMode = False
-		self.frame.config(bg='#d9d9d9')
+		self.update()
     #end setLightMode
 #end TopFrameHandler
 def mainTest():
@@ -732,38 +774,27 @@ if __name__ == '__main__':
 	frame.pack(  )
 	root.geometry("%dx%d+0+0" % (w, h))
 	simulator = SimulateData()
+	simulator.setupThreeLanes()
 	gui = GUI(frame)
 	
-	#photo = PhotoImage(file = r'../resources/button1Test.png')
 	
-
-
-
-	# topbarimg = Image.open('../resources/topBar2.png')
-	# topbarimg = topbarimg.resize((2000,75),Image.ANTIALIAS)
-	# topb = ImageTk.PhotoImage(topbarimg)
-	# labelTopBar = Label(root, image=topb, compound=BOTTOM)
-	# labelTopBar.place(x=0,y=0)
-
-
-	#root.bind("<Left>", left)
-	#root.bind("<Right>", right)
-	#root.bind("<Up>", up)
-	#root.bind("<Down>", down)
-	test = Thread( target=simulator.twoLaneTest)
+	# test = Thread( target=simulator.twoLaneTest)
+	# test.setDaemon(True)
+	# test.start()
+	test = Thread( target=simulator.runCarPassing)
 	test.setDaemon(True)
 	test.start()
-	#test = Thread( target=simulator.runCarPassing)
-	#test.setDaemon(True)
-	#test.start()
-	#test2 = Thread( target=simulator.runCarChangeLane)
-	#test2.setDaemon(True)
-	#test2.start()
+	test2 = Thread( target=simulator.runCarChangeLane)
+	test2.setDaemon(True)
+	test2.start()
 	
 	test3 = Thread(target=simulator.speedUpEcoCAR)
 	test3.setDaemon(True)
 	test3.start()
 	
+	test4 = Thread(target=simulator.carStoppingInForntTest)
+	test4.setDaemon(True)
+	test4.start()
 	mainLoop = Thread( target=updateLoop, args=(gui,))
 	mainLoop.start()
 	
