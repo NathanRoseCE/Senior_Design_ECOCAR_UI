@@ -19,6 +19,7 @@ class Obstacle_GUI:
 		self.oid = oid
 		self.master= master
 		self.label = Label(self.master, bd=0) 
+		self.labelTwo = Label(self.master, bd=0)
 		self.obstacleType = obstacleType
 		self.blinking = False
 		self.blinkerInfo = BlinkerInfo.BLINKER_INFO_UNAVAILABLE
@@ -51,6 +52,10 @@ class Obstacle_GUI:
 		self.label.destroy()
 		self.label = Label(self.master, image=self.photoImage, bd=0) 
 		self.label.place( relx = self.x, rely = self.y, anchor='center')
+		
+		self.labelTwo.destroy()
+		self.labelTwo = Label(self.master, image=self.photoImage, bd=0) 
+		self.labelTwo.place( relx = self.x, rely = self.y, anchor='center')
 	#end prep
 	
 	def updateImage(self):
@@ -86,6 +91,7 @@ class Obstacle_GUI:
 	def cleanUp(self): # call this before del
 		self.die = True
 		self.label.destroy()
+		self.labelTwo.destroy()
 		print "Killing thread"
 		while not self.dead:
 			time.sleep(0.5)
@@ -223,31 +229,36 @@ class FrontCarTracker:
 	#end  __init__
 	
 	def update(self, x, y, xPixels, yPixels, distance, speed):
-		#ensure proper image is loaded(rn its only dashed yellow)
 		if not self.hidden:
-			distance = distance
 			self.alert(distance, speed)
-			if (not self.onScreen) and (self.alertLevel != AlertLevel.NONE):		
-				self.label = Label(self.master)
-				self.lineLabel= Label(self.master)
-				self.onScreen = True
-			elif self.onScreen and ( self.alertLevel == AlertLevel.NONE):
-				self.label.destroy()
-				self.lineLabel.destroy()
+			if distance > 0:
+				if (not self.onScreen) and (self.alertLevel != AlertLevel.NONE):		
+					self.label = Label(self.master)
+					self.lineLabel= Label(self.master)
+					self.onScreen = True
+				elif self.onScreen and ( self.alertLevel == AlertLevel.NONE):
+					self.label.destroy()
+					self.lineLabel.destroy()
+				#end if
 
-			if self.alertLevel != AlertLevel.NONE:
-				self.photoImage = ImageTk.PhotoImage(self.image.resize((int(xPixels), int(yPixels)))) 
-				self.lineLabel.destroy()
-				self.lineLabel = Label(self.master, image=self.photoImage, bd=0) 
-				self.lineLabel.place( relx = x, rely = y, anchor='center')
-				
-				
-				text =str(distance) + " ft"
-				self.label.destroy()
-				self.label = Label(self.master, text = text, fg=self.textColor, bg = self.bg)
-				self.label.place( relx = x + 0.05, rely = y, anchor='center')
+				if self.alertLevel != AlertLevel.NONE:
+					self.photoImage = ImageTk.PhotoImage(self.image.resize((int(xPixels), int(yPixels)))) 
+					self.lineLabel.destroy()
+					self.lineLabel = Label(self.master, image=self.photoImage, bd=0) 
+					self.lineLabel.place( relx = x, rely = y, anchor='center')
+					
+					
+					text =str(distance) + " ft"
+					self.label.destroy()
+					self.label = Label(self.master, text = text, fg=self.textColor, bg = self.bg)
+					self.label.place( relx = x + 0.05, rely = y, anchor='center')
+				else:
+					self.onScreen = False
+				#end if
 			else:
-				self.onScreen = False
+				if distance is not None:
+					print "You sir, are in a wreck"
+			#end if
 		#end if
 	#end update
 	def alert(self, distance, speed):
@@ -256,7 +267,10 @@ class FrontCarTracker:
 		#end if
 		
 		#convert distance to distance in seconds(assumes speed is MPH)
-		distanceS = distance / (speed * 5280/3600)
+		distanceS = distance
+		if speed != 0:
+			distanceS = distance / (speed * 5280/3600)
+		#end if
 		closeThreshold = 1.0 #less than on second
 		midthresholdValue = 2.0 #less than two seconds
 		newAlertLevel = self.alertLevel
@@ -291,6 +305,7 @@ class EcoCar:
 		self.sizeX = sizeX
 		self.sizeY = sizeY
 		self.label = Label()
+		self.labelTwo = Label()
 		self.blinkerOn = False
 		self.die = False
 		self.dead = False
@@ -317,6 +332,9 @@ class EcoCar:
 		self.label = Label(self.master, image=self.photoImage, bd=0) 
 		self.label.place( relx = self.x, rely = self.y, anchor='center')
 		
+		self.labelTwo.destroy()
+		self.labelTwo = Label(self.master, image=self.photoImage, bd=0) 
+		self.labelTwo.place( relx = self.x, rely = self.y, anchor='center')
 	#end prep
 	
 	def updateImage(self):
@@ -500,13 +518,17 @@ class GUI:
 			return None, None
 		#end if
 		
+		foundInFront = False
 		closestCar = carsInLane[0]
 		for car in carsInLane:
-			if closestCar.y > car.y and closestCar.y > 0:
+			if closestCar.y > car.y and car.y > 0:
 				closestCar = car
+				foundInFront = True
 			#end if
 		#end for
-		
+		if not foundInFront:
+			return None, None
+		# end if
 		distance = closestCar.y - closestCar.sizeY/2 - self.ecoCar.sizeY/2
 		return (distance, closestCar)
 	def updateObstacles(self):
@@ -518,7 +540,7 @@ class GUI:
 			else:
 				print "New obstacle: " + str(obstacle)
 				obstacleType = obstacleCpy[obstacle].obstacleType
-				self.obstacleGUIs[obstacle] = Obstacle_GUI(self.carFrame, obstacle, obstacleType)
+				self.obstacleGUIs[obstacle] = Obstacle_GUI(self.carFrame, obstacle, obstacleType, self.darkMode)
 			#end if
 			obs = self.data.obstacles[obstacle]
 			blinkerInfo = obs.blinkerInfo
@@ -770,6 +792,9 @@ if __name__ == '__main__':
 	test3.setDaemon(True)
 	test3.start()
 	
+	test4 = Thread(target=simulator.carStoppingInForntTest)
+	test4.setDaemon(True)
+	test4.start()
 	mainLoop = Thread( target=updateLoop, args=(gui,))
 	mainLoop.start()
 	

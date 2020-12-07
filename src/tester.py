@@ -98,4 +98,46 @@ class SimulateData:
         del self.data.obstacles[1]
         print "DONE!"
     #end runCarChangeLane
+    
+    def carStoppingInForntTest(self):
+		print "Car Stopping Test"
+		time.sleep(10)
+		obstacle = Obstacle(2, 0, -50, 0, 0, 6.0, 15.0, BlinkerInfo.BLINKER_INFO_OFF, ObstacleType.CAR, lanePosition = LanePosition.RIGHT)
+		self.data.obstacles[2] = obstacle
+    	
+		forwardSpeed = 0.25
+		sidespeed = 0.2
+		while obstacle.y < 10:
+			obstacle.y +=forwardSpeed
+			time.sleep(0.1)
+    	#end while
+    	
+		obstacle.blinkerInfo = BlinkerInfo.BLINKER_INFO_LEFT
+		while obstacle.x > -self.data.lanes[LanePosition.CENTER].laneWidth/2:
+			obstacle.x -=sidespeed
+			obstacle.y +=forwardSpeed
+			time.sleep(0.1)
+        #end for
+		obstacle.lanePosition = LanePosition.CENTER
+		obstacle.x = self.data.lanes[LanePosition.CENTER].laneWidth/2
+        
+		while obstacle.x > 0:
+			obstacle.x -=sidespeed
+			obstacle.y +=forwardSpeed
+			time.sleep(0.1)
+		print "Stopping Car"
+		
+		while forwardSpeed > 0:
+			forwardSpeed -= 0.05
+			obstacle.y += forwardSpeed
+			time.sleep(0.1)
+		#end while
+		
+		while self.data.CarSpeed > 0:
+			self.data.CarSpeed -= 1
+			time.sleep(0.1)
+		#end while
+		
+		   	
+   	#end carStoppingInFrontTest
 #end SimulateData
